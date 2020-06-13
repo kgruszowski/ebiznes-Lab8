@@ -5,18 +5,23 @@ import com.google.inject.{AbstractModule, Provides}
 import com.mohiva.play.silhouette.api.crypto.{Crypter, CrypterAuthenticatorEncoder, Signer}
 import com.mohiva.play.silhouette.api.actions.{SecuredErrorHandler, UnsecuredErrorHandler}
 import com.mohiva.play.silhouette.api.services.AuthenticatorService
+import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util._
 import com.mohiva.play.silhouette.api.{Environment, EventBus, Silhouette, SilhouetteProvider}
 import com.mohiva.play.silhouette.crypto.{JcaCrypter, JcaCrypterSettings, JcaSigner, JcaSignerSettings}
-import com.mohiva.play.silhouette.impl.authenticators.{JWTAuthenticator, JWTAuthenticatorService, JWTAuthenticatorSettings}
-import com.mohiva.play.silhouette.impl.providers.{DefaultSocialStateHandler, OAuth2Settings, SocialProviderRegistry}
-import com.mohiva.play.silhouette.impl.providers.oauth2.GoogleProvider
+import com.mohiva.play.silhouette.impl.authenticators.{CookieAuthenticator, CookieAuthenticatorService, CookieAuthenticatorSettings, JWTAuthenticator, JWTAuthenticatorService, JWTAuthenticatorSettings}
+import com.mohiva.play.silhouette.impl.providers.{DefaultSocialStateHandler, OAuth2Info, OAuth2Settings, SocialProviderRegistry}
+import com.mohiva.play.silhouette.impl.providers.oauth2.{GitHubProvider, GoogleProvider}
 import com.mohiva.play.silhouette.impl.providers.state.{CsrfStateItemHandler, CsrfStateSettings}
 import com.mohiva.play.silhouette.impl.util.{DefaultFingerprintGenerator, SecureRandomIDGenerator}
+import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
+import com.mohiva.play.silhouette.persistence.repositories.DelegableAuthInfoRepository
 import models.UserService
+import models.daos.SocialAuthInfoDAOImpl
 import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
 import play.api.libs.ws.WSClient
+import play.api.mvc.CookieHeaderEncoding
 import utils.{CustomSecuredErrorHandler, CustomUnsecuredErrorHandler, DefaultEnv}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -28,14 +33,25 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
    */
 
   override def configure(): Unit = {
-
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
     bind[UnsecuredErrorHandler].to[CustomUnsecuredErrorHandler]
     bind[SecuredErrorHandler].to[CustomSecuredErrorHandler]
     bind[IDGenerator].toInstance(new SecureRandomIDGenerator())
     bind[EventBus].toInstance(EventBus())
     bind[Clock].toInstance(Clock())
+    bind[DelegableAuthInfoDAO[OAuth2Info]].to[SocialAuthInfoDAOImpl]
     bind[FingerprintGenerator].toInstance(new DefaultFingerprintGenerator(false))
+  }
+
+  /**
+   * Provides the utils.auth info repository.
+   *
+   * @param oauth2InfoDAO The implementation of the delegable OAuth2 utils.auth info DAO.
+   * @return The utils.auth info repository instance.
+   */
+  @Provides
+  def provideAuthInfoRepository(oauth2InfoDAO: DelegableAuthInfoDAO[OAuth2Info]): AuthInfoRepository = {
+    new DelegableAuthInfoRepository(oauth2InfoDAO)
   }
 
   /**
@@ -57,7 +73,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
    */
   @Provides
   def provideEnvironment(userService: UserService,
-                         authenticatorService: AuthenticatorService[JWTAuthenticator],
+                         authenticatorService: AuthenticatorService[CookieAuthenticator],
                          eventBus: EventBus): Environment[DefaultEnv] =
     Environment[DefaultEnv](userService, authenticatorService, Seq(), eventBus)
 
@@ -76,24 +92,67 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     new JcaCrypter(config)
   }
 
+//  /**
+//   * Provides the authenticator service.
+//   *
+//   * @param crypter       The crypter implementation.
+//   * @param idGenerator   The ID generator implementation.
+//   * @param configuration The Play configuration.
+//   * @param clock         The clock instance.
+//   * @return The authenticator service.
+//   */
+//  @Provides
+//  def provideAuthenticatorService(@Named("authenticator-crypter") crypter: Crypter,
+//                                  idGenerator: IDGenerator,
+//                                  configuration: Configuration,
+//                                  clock: Clock): AuthenticatorService[JWTAuthenticator] = {
+//    val settings = JWTAuthenticatorSettings(sharedSecret = configuration.get[String]("play.http.secret.key"))
+//    val encoder = new CrypterAuthenticatorEncoder(crypter)
+//
+//    new JWTAuthenticatorService(settings, None, encoder, idGenerator, clock)
+//  }
+  /**
+   * Provides the signer for the authenticator.
+   *
+   * @param configuration The Play configuration.
+   * @return The signer for the authenticator.
+   */
+  @Provides @Named("authenticator-signer")
+  def provideAuthenticatorSigner(configuration: Configuration): Signer = {
+    val config = JcaSignerSettings("blebletest")
+
+    new JcaSigner(config)
+  }
+
   /**
    * Provides the authenticator service.
    *
-   * @param crypter       The crypter implementation.
-   * @param idGenerator   The ID generator implementation.
+   * @param signer The signer implementation.
+   * @param crypter The crypter implementation.
+   * @param cookieHeaderEncoding Logic for encoding and decoding `Cookie` and `Set-Cookie` headers.
+   * @param fingerprintGenerator The fingerprint generator implementation.
+   * @param idGenerator The ID generator implementation.
    * @param configuration The Play configuration.
-   * @param clock         The clock instance.
+   * @param clock The clock instance.
    * @return The authenticator service.
    */
   @Provides
-  def provideAuthenticatorService(@Named("authenticator-crypter") crypter: Crypter,
-                                  idGenerator: IDGenerator,
-                                  configuration: Configuration,
-                                  clock: Clock): AuthenticatorService[JWTAuthenticator] = {
-    val settings = JWTAuthenticatorSettings(sharedSecret = configuration.get[String]("play.http.secret.key"))
-    val encoder = new CrypterAuthenticatorEncoder(crypter)
+  def provideAuthenticatorService(
+                                   @Named("authenticator-signer") signer: Signer,
+                                   @Named("authenticator-crypter") crypter: Crypter,
+                                   cookieHeaderEncoding: CookieHeaderEncoding,
+                                   fingerprintGenerator: FingerprintGenerator,
+                                   idGenerator: IDGenerator,
+                                   configuration: Configuration,
+                                   clock: Clock): AuthenticatorService[CookieAuthenticator] = {
 
-    new JWTAuthenticatorService(settings, None, encoder, idGenerator, clock)
+    val config = CookieAuthenticatorSettings(
+      secureCookie = false,
+      cookiePath="/"
+    )
+    val authenticatorEncoder = new CrypterAuthenticatorEncoder(crypter)
+
+    new CookieAuthenticatorService(config, None, signer, cookieHeaderEncoding, authenticatorEncoder, fingerprintGenerator, idGenerator, clock)
   }
 
   /**
@@ -103,12 +162,11 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
    * @return The Silhouette environment.
    */
   @Provides
-  def provideSocialProviderRegistry(
-                                     googleProvider: GoogleProvider,
-                                   ): SocialProviderRegistry = {
+  def provideSocialProviderRegistry(googleProvider: GoogleProvider, gitHubProvider: GitHubProvider): SocialProviderRegistry = {
 
     SocialProviderRegistry(Seq(
       googleProvider,
+      gitHubProvider
     ))
   }
 
@@ -122,7 +180,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   @Named("social-state-signer")
   def provideSocialStateSigner(configuration: Configuration): Signer = {
     val config = JcaSignerSettings(
-      configuration.get[String]("silhouette.socialStateHandler.signer")
+      key = configuration.get[String]("silhouette.socialStateHandler.signer.key")
     )
 
     new JcaSigner(config)
@@ -137,7 +195,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   @Provides
   @Named("csrf-state-item-signer")
   def provideCSRFStateItemSigner(configuration: Configuration): Signer = {
-    val config = JcaSignerSettings(configuration.get[String]("silhouette.csrfStateItemHandler.signer"))
+    val config = JcaSignerSettings(configuration.get[String]("silhouette.csrfStateItemHandler.signer.key"))
 
     new JcaSigner(config)
   }
@@ -173,10 +231,8 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
    * @return The social state handler implementation.
    */
   @Provides
-  def provideSocialStateHandler(
-                                 @Named("social-state-signer") signer: Signer,
+  def provideSocialStateHandler(@Named("social-state-signer") signer: Signer,
                                  csrfStateItemHandler: CsrfStateItemHandler): DefaultSocialStateHandler = {
-
     new DefaultSocialStateHandler(Set(csrfStateItemHandler), signer)
   }
 
@@ -197,12 +253,37 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     val config = OAuth2Settings(
       authorizationURL = configuration.get[Option[String]]("silhouette.google.authorizationURL"),
       accessTokenURL = configuration.get[String]("silhouette.google.accessTokenURL"),
-      redirectURL = configuration.get[Option[String]]("silhouette.google.accessTokenURL"),
-      clientID = configuration.get[String]("silhouette.google.accessTokenURL"),
-      clientSecret = configuration.get[String]("silhouette.google.accessTokenURL"),
-      scope = configuration.get[Option[String]]("silhouette.google.accessTokenURL")
+      redirectURL = configuration.get[Option[String]]("silhouette.google.redirectURL"),
+      clientID = configuration.get[String]("silhouette.google.clientID"),
+      clientSecret = configuration.get[String]("silhouette.google.clientSecret"),
+      scope = configuration.get[Option[String]]("silhouette.google.scope")
     )
 
     new GoogleProvider(httpLayer, socialStateHandler, config)
+  }
+
+  /**
+   * Provides the Github provider.
+   *
+   * @param httpLayer          The HTTP layer implementation.
+   * @param socialStateHandler The social state handler implementation.
+   * @param configuration      The Play configuration.
+   * @return The Github provider.
+   */
+  @Provides
+  def provideGithubProvider(
+                             httpLayer: HTTPLayer,
+                             socialStateHandler: DefaultSocialStateHandler,
+                             configuration: Configuration): GitHubProvider = {
+
+    val config = OAuth2Settings(
+      authorizationURL = configuration.get[Option[String]]("silhouette.github.authorizationURL"),
+      accessTokenURL = configuration.get[String]("silhouette.github.accessTokenURL"),
+      redirectURL = configuration.get[Option[String]]("silhouette.github.redirectURL"),
+      clientID = configuration.get[String]("silhouette.github.clientID"),
+      clientSecret = configuration.get[String]("silhouette.github.clientSecret"),
+    )
+
+    new GitHubProvider(httpLayer, socialStateHandler, config)
   }
 }

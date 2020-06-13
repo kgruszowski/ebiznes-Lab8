@@ -85,6 +85,16 @@ CREATE TABLE "order" (
     FOREIGN KEY(shippingMethod) references shippingMethod(id)
 );
 
+CREATE TABLE "social_auth_info" (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  provider varchar(50) NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  access_token TEXT NOT NULL,
+  token_type VARCHAR(30),
+  expires_in INT,
+  refresh_token TEXT
+);
+
 -- !Downs
 
 DROP TABLE "category";
@@ -98,3 +108,4 @@ DROP TABLE "review";
 DROP TABLE "order";
 DROP TABLE "discount";
 DROP TABLE "wishlist";
+DROP TABLE "social_auth_info";
