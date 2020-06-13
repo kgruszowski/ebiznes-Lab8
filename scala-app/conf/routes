@@ -6,6 +6,9 @@
 # An example controller showing a sample home page
 GET           /                                          controllers.HomeController.index
 
+# Auth
+#GET         /authenticate/:provider          @controllers.SocialAuthController.authenticate(provider)
+
 # Customer module
 GET           /customers                                 controllers.CustomerController.list
 POST          /customer                                  controllers.CustomerController.create
