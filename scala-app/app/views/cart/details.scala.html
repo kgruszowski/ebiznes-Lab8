@@ -1,0 +1,46 @@
+@(cart: Cart, updateForm: Form[UpdateCartForm], products: Seq[(Product, Category)], selectedProducts: List[Long])(implicit request: MessagesRequestHeader, flash: Flash)
+
+    @import helper._
+
+    @main("Update cart") {
+        <article>
+            <h2>Update cart #@cart.id</h2>
+            @flash.get("success").getOrElse("")
+            @form(routes.CartController.update(cart.id)) {
+                @helper.CSRF.formField
+                @if(updateForm.hasErrors) {
+                    <ul>
+                    @for(error <- updateForm.errors) {
+                        <li>@error.key -> @error.format</li>
+                    }
+                    </ul>
+                }
+
+                <input name="id" id="id" value="@updateForm("id").value" type="hidden" />
+
+                <dl>
+                    <dt>Customer</dt>
+                    <dd>
+                        <select name="customer" id="customer">
+                            <option value="@cart.customer">@cart.customer</option>
+                        </select>
+                    </dd>
+                </dl>
+
+                <dl>
+                    <dt>Products</dt>
+                    <dd>
+                        <select style="width: 300px; height: 200px;" name="products" id="products" multiple>
+                        @for((tuple, index) <- products.zipWithIndex) {
+                            <option id="products[@index]" value="@tuple._1.id" @if(selectedProducts.contains(tuple._1.id)) {selected="selected"}>@tuple._1.name</option>
+                        }
+                        </select>
+                    </dd>
+                </dl>
+
+                <div class="buttons">
+                    <input type="submit" value="Update Cart"/>
+                </div>
+            }
+        </article>
+    }

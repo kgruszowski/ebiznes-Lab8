@@ -1,0 +1,19 @@
+@(category: Category, updateForm: Form[UpdateCategoryForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@main("Category details") {
+    <article>
+        <h2>Category #@category.id</h2>
+        @flash.get("success").getOrElse("")
+
+        @form(routes.CategoryController.update(category.id)) {
+            @helper.CSRF.formField
+            <input name="id" id="id" value="@updateForm("id").value" type="hidden" />
+            @inputText(updateForm("name"))
+            <div class="buttons">
+                <input type="submit" value="Update Category"/>
+            </div>
+        }
+    </article>
+}

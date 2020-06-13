@@ -1,0 +1,20 @@
+@(createForm: Form[CreateCustomerForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@main("Customer details") {
+    <article>
+        <h2>Create new customer</h2>
+        @flash.get("success").getOrElse("")
+        @form(routes.CustomerController.create()) {
+            @helper.CSRF.formField
+            @inputText(createForm("firstname"))
+            @inputText(createForm("surname"))
+            @inputText(createForm("address"))
+
+            <div class="buttons">
+                <input type="submit" value="Add Customer"/>
+            </div>
+        }
+    </article>
+}

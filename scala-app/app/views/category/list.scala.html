@@ -1,0 +1,13 @@
+@(categories: Seq[Category])
+
+@main("Categories") {
+    <article>
+        <h2>Categories</h2>
+        <ul>
+        @for(category <- categories) {
+            <li><a href="@controllers.routes.CategoryController.details(category.id)">@category.name</a></li>
+        }
+        </ul>
+    </article>
+}
+

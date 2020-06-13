@@ -1,0 +1,15 @@
+@(reviews: Seq[Review])
+
+@main("Reviews list") {
+    <article>
+        <h2>Reviews list</h2>
+        @for(review <- reviews) {
+            <div>
+                <strong><a href="@controllers.routes.ReviewController.details(review.id)">
+                    productId: @review.product -> rate: @review.rate/5
+                </a>
+                </strong>
+            </div>
+        }
+    </article>
+}

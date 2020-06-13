@@ -1,0 +1,14 @@
+@(wishlists: Seq[Wishlist])
+
+@main("Wishlists") {
+    <article>
+        <h2>Wishlists</h2>
+        <ul>
+        @for(wishlist <- wishlists) {
+            <li><a href="@controllers.routes.WishlistController.details(wishlist.id)">
+                customerId: @wishlist.customer -> productId: @wishlist.product
+            </a></li>
+        }
+        </ul>
+    </article>
+}

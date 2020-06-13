@@ -1,0 +1,28 @@
+@(product: Product, updateForm: Form[UpdateProductForm], categories: Seq[Category])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@main("Product details") {
+    <article>
+        <h2>Product #@product.id</h2>
+        @flash.get("success").getOrElse("")
+        @form(routes.ProductController.update(product.id)) {
+            @helper.CSRF.formField
+            <input name="id" id="id" value="@updateForm("id").value" type="hidden" />
+            @inputText(updateForm("name"))
+            @inputText(updateForm("description"))
+            @inputText(updateForm("photo"))
+            @inputText(updateForm("price"))
+
+            <select name="category" id="category">
+            @for(cat <- categories) {
+                <option value="@cat.id" @if(cat.id == product.category) { selected }>@cat.name</option>
+            }
+            </select>
+
+            <div class="buttons">
+                <input type="submit" value="Update Product"/>
+            </div>
+        </article>
+    }
+}

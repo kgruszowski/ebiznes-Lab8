@@ -1,0 +1,50 @@
+@(createForm: Form[CreateOrderForm], carts: Seq[Cart], discounts: Seq[Discount], shipping: Seq[ShippingMethod])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@main("Create order") {
+    <article>
+        <h2>Create new product</h2>
+        @flash.get("success").getOrElse("")
+        @form(routes.OrderController.create()) {
+            @helper.CSRF.formField
+
+            <dl>
+                <dt>Cart</dt>
+                <dd>
+                    <select name="cart" id="cart">
+                    @for(c <- carts){
+                        <option value="@c.id">@c.id</option>
+                    }
+                    </select>
+                </dd>
+            </dl>
+
+            <dl>
+                <dt>Cart</dt>
+                <dd>
+                    <select name="discount" id="discount">
+                    @for(d <- discounts){
+                        <option value="@d.id">@d.code @d.value%</option>
+                    }
+                    </select>
+                </dd>
+            </dl>
+
+            <dl>
+                <dt>Shipping Method</dt>
+                <dd>
+                    <select name="shippingMethod" id="shippingMethod">
+                    @for(s <- shipping){
+                        <option value="@s.id">@s.name $@s.price</option>
+                    }
+                    </select>
+                </dd>
+            </dl>
+
+            <div class="buttons">
+                <input type="submit" value="Create an order"/>
+            </div>
+        }
+    </article>
+}

@@ -1,0 +1,16 @@
+@(carts: Seq[Cart])
+
+@main("Carts") {
+    <article>
+        <h2>Cart content</h2>
+        @for(cart <- carts) {
+            <div>
+                <strong>
+                    <a href="@controllers.routes.CartController.details(cart.id)">
+                        Cart #@cart.id for Customer #@cart.customer
+                    </a>
+                </strong>
+            </div>
+        }
+    </article>
+}

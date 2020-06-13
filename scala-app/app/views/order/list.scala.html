@@ -1,0 +1,17 @@
+@(orders: Seq[(Order, Cart)])
+
+
+@main("Order list") {
+    <article>
+        <h2>Orders</h2>
+        @for(order <- orders) {
+            <h3>Order #@order._1.id</h3>
+            <ul>
+                <li>cartId: @order._1.cart</li>
+                <li>shippingMethodId: @order._1.shippingMethod</li>
+                <li>customerId: @order._2.customer</li>
+                <li><a href="@controllers.routes.OrderController.details(order._1.id)">details</a></li>
+            </ul>
+        }
+    </article>
+}

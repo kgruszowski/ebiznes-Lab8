@@ -1,0 +1,148 @@
+
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# An example controller showing a sample home page
+GET           /                                          controllers.HomeController.index
+
+# Customer module
+GET           /customers                                 controllers.CustomerController.list
+POST          /customer                                  controllers.CustomerController.create
+GET           /customer                                  controllers.CustomerController.create
+POST          /customer/:id                              controllers.CustomerController.update(id: Long)
+GET           /customer/:id                              controllers.CustomerController.details(id: Long)
+# Customer REST
+GET           /api/customers                             controllers.CustomerController.apiList()
+POST          /api/customer                              controllers.CustomerController.apiAdd()
+GET           /api/customer/:id                          controllers.CustomerController.apiGet(id: Long)
+PUT           /api/customer/:id                          controllers.CustomerController.apiUpdate(id: Long)
+DELETE        /api/customer/:id                          controllers.CustomerController.apiDelete(id: Long)
+
+# Product module
+GET           /products                                  controllers.ProductController.list
+POST          /product                                   controllers.ProductController.create
+GET           /product                                   controllers.ProductController.create
+POST          /product/:id                               controllers.ProductController.update(id: Long)
+GET           /product/:id                               controllers.ProductController.details(id: Long)
+# Product REST
+GET           /api/products                              controllers.ProductController.apiList()
+POST          /api/product                               controllers.ProductController.apiAdd()
+GET           /api/product/:id                           controllers.ProductController.apiGet(id: Long)
+PUT           /api/product/:id                           controllers.ProductController.apiUpdate(id: Long)
+DELETE        /api/product/:id                           controllers.ProductController.apiDelete(id: Long)
+
+# Inventory module
+GET           /inventories                               controllers.InventoryController.list
+POST          /inventory                                 controllers.InventoryController.create
+GET           /inventory                                 controllers.InventoryController.create
+GET           /inventory/:id                             controllers.InventoryController.details(id: Long)
+POST          /inventory/:id                             controllers.InventoryController.update(id: Long)
+# Inventory REST
+GET           /api/inventories                           controllers.InventoryController.apiList()
+POST          /api/inventory                             controllers.InventoryController.apiAdd()
+GET           /api/inventory/:id                         controllers.InventoryController.apiGet(id: Long)
+GET           /api/inventory/product/:id                 controllers.InventoryController.apiGetByProductId(id: Long)
+PUT           /api/inventory/:id                         controllers.InventoryController.apiUpdate(id: Long)
+DELETE        /api/inventory/:id                         controllers.InventoryController.apiDelete(id: Long)
+
+# Cart module
+GET           /carts                                     controllers.CartController.listAction
+POST          /cart                                      controllers.CartController.create
+GET           /cart                                      controllers.CartController.create
+GET           /cart/:id                                  controllers.CartController.details(id: Long)
+POST          /cart/:id                                  controllers.CartController.update(id: Long)
+# Discount REST
+GET           /api/carts                                 controllers.CartController.apiList()
+POST          /api/cart                                  controllers.CartController.apiAdd()
+GET           /api/cart/:id                              controllers.CartController.apiGet(id: Long)
+GET           /api/cart/customer/:customerId             controllers.CartController.apiGetForCustomer(customerId: Long)
+PUT           /api/cart/:id                              controllers.CartController.apiUpdate(id: Long)
+DELETE        /api/cart/:id                              controllers.CartController.apiDelete(id: Long)
+
+# Shipping method module
+GET           /shipping-methods                          controllers.ShippingController.list
+POST          /shipping-method                           controllers.ShippingController.create
+GET           /shipping-method                           controllers.ShippingController.create
+GET           /shipping-method/:id                       controllers.ShippingController.details(id: Long)
+POST          /shipping-method/:id                       controllers.ShippingController.update(id: Long)
+# Shipping method REST
+GET           /api/shipping-methods                      controllers.ShippingController.apiList()
+POST          /api/shipping-method                       controllers.ShippingController.apiAdd()
+GET           /api/shipping-method/:id                   controllers.ShippingController.apiGet(id: Long)
+PUT           /api/shipping-method/:id                   controllers.ShippingController.apiUpdate(id: Long)
+DELETE        /api/shipping-method/:id                   controllers.ShippingController.apiDelete(id: Long)
+
+# Order module
+GET           /orders                                    controllers.OrderController.list
+POST          /order                                     controllers.OrderController.create
+GET           /order                                     controllers.OrderController.create
+GET           /order/:id                                 controllers.OrderController.details(id: Long)
+POST          /order/:id                                 controllers.OrderController.update(id: Long)
+
+# Order REST
+GET           /api/orders                                controllers.OrderController.apiList()
+GET           /api/orders/customer/:customerId           controllers.OrderController.apiListByCustomer(customerId: Long)
+POST          /api/order                                 controllers.OrderController.apiAdd()
+GET           /api/order/:id                             controllers.OrderController.apiGet(id: Long)
+PUT           /api/order/:id                             controllers.OrderController.apiUpdate(id: Long)
+DELETE        /api/order/:id                             controllers.OrderController.apiDelete(id: Long)
+
+# Discount module
+GET           /discounts                                 controllers.DiscountController.list
+POST          /discount                                  controllers.DiscountController.create
+GET           /discount                                  controllers.DiscountController.create
+GET           /discount/:id                              controllers.DiscountController.details(id: Long)
+POST          /discount/:id                              controllers.DiscountController.update(id: Long)
+# Discount REST
+GET           /api/discounts                             controllers.DiscountController.apiList()
+POST          /api/discount                              controllers.DiscountController.apiAdd()
+GET           /api/discount/:id                          controllers.DiscountController.apiGet(id: Long)
+PUT           /api/discount/:id                          controllers.DiscountController.apiUpdate(id: Long)
+DELETE        /api/discount/:id                          controllers.DiscountController.apiDelete(id: Long)
+
+# Category module
+GET           /categories                                controllers.CategoryController.list
+POST          /category                                  controllers.CategoryController.create
+GET           /category                                  controllers.CategoryController.create
+POST          /category/:id                              controllers.CategoryController.update(id: Long)
+GET           /category/:id                              controllers.CategoryController.details(id: Long)
+# Category REST
+GET           /api/categories                            controllers.CategoryController.apiList()
+POST          /api/category                              controllers.CategoryController.apiAdd()
+GET           /api/category/:id                          controllers.CategoryController.apiGet(id: Long)
+PUT           /api/category/:id                          controllers.CategoryController.apiUpdate(id: Long)
+DELETE        /api/category/:id                          controllers.CategoryController.apiDelete(id: Long)
+
+# Review module
+GET           /reviews                                   controllers.ReviewController.list
+POST          /review                                    controllers.ReviewController.create
+GET           /review                                    controllers.ReviewController.create
+GET           /review/:id                                controllers.ReviewController.details(id: Long)
+POST          /review/:id                                controllers.ReviewController.update(id: Long)
+## Review REST
+GET           /api/reviews                               controllers.ReviewController.apiList()
+GET           /api/reviews/product/:productId            controllers.ReviewController.apiListByProduct(productId: Long)
+POST          /api/review                                controllers.ReviewController.apiAdd()
+GET           /api/review/:id                            controllers.ReviewController.apiGet(id: Long)
+PUT           /api/review/:id                            controllers.ReviewController.apiUpdate(id: Long)
+DELETE        /api/review/:id                            controllers.ReviewController.apiDelete(id: Long)
+
+# Whishlist module
+GET           /wishlists                                 controllers.WishlistController.list
+POST          /wishlist                                  controllers.WishlistController.create
+GET           /wishlist                                  controllers.WishlistController.create
+GET           /wishlist/:id                              controllers.WishlistController.details(id: Long)
+POST          /wishlist/:id                              controllers.WishlistController.update(id: Long)
+# Whishlist REST
+GET           /api/wishlists                             controllers.WishlistController.apiList()
+GET           /api/wishlists/customer/:customerId        controllers.WishlistController.apiListForCustomer(customerId: Long)
+POST          /api/wishlist                              controllers.WishlistController.apiAdd()
+GET           /api/wishlist/:id                          controllers.WishlistController.apiGet(id: Long)
+PUT           /api/wishlist/:id                          controllers.WishlistController.apiUpdate(id: Long)
+DELETE        /api/wishlist/:id                          controllers.WishlistController.apiDelete(id: Long)
+
+# Map static resources from the /public folder to the /assets URL path
+GET           /assets/*file                              controllers.Assets.versioned(path="/public", file: Asset)
+
+      

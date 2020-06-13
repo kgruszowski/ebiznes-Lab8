@@ -1,0 +1,45 @@
+@(wishlist: Wishlist, updateForm: Form[UpdateWishlistForm], products: Seq[(Product, Category)])(implicit request: MessagesRequestHeader, flash: Flash)
+
+    @import helper._
+
+    @main("Wishlist details") {
+        <article>
+            @if(updateForm.hasErrors) {
+                <ul>
+                @for(error <- updateForm.errors) {
+                    <li>@error.key = @error.format</li>
+                }
+                </ul>
+            }
+            <h2>Wishlist #@wishlist.id</h2>
+            @flash.get("success").getOrElse("")
+            @form(routes.WishlistController.update(wishlist.id)) {
+                @helper.CSRF.formField
+                <input name="id" id="id" value="@updateForm("id").value" type="hidden" />
+
+                <dl>
+                    <dt>Customer</dt>
+                    <dd>
+                        <select name="customer" id="customer">
+                            <option value="@wishlist.customer">@wishlist.customer</option>
+                        </select>
+                    </dd>
+                </dl>
+
+                <dl>
+                    <dt>Product</dt>
+                    <dd>
+                        <select name="product" id="product">
+                        @for(tuple <- products){
+                            <option value="@tuple._1.id" @if(wishlist.product == tuple._1.id) { selected }>@tuple._1.name</option>
+                        }
+                        </select>
+                    </dd>
+                </dl>
+
+                <div class="buttons">
+                    <input type="submit" value="Update wishlist"/>
+                </div>
+            </article>
+    }
+    }

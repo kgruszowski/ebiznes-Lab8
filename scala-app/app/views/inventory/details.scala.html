@@ -1,0 +1,24 @@
+@(inventory: Inventory, updateForm: Form[UpdateInventoryForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+    @import helper._
+
+    @main("Inventory details") {
+        <article>
+            <h2>Inventory #@inventory.id</h2>
+            @flash.get("success").getOrElse("")
+            @form(routes.InventoryController.update(inventory.id)) {
+                @helper.CSRF.formField
+                <input name="id" id="id" value="@updateForm("id").value" type="hidden" />
+                <label for="product">ProductId: </label>
+                <select name="product" id="product">
+                    <option value="@inventory.product">@inventory.product</option>
+                </select>
+                @inputText(updateForm("quantity"))
+                @inputText(updateForm("available"))
+
+                <div class="buttons">
+                    <input type="submit" value="Update Inventory"/>
+                </div>
+            </article>
+    }
+}

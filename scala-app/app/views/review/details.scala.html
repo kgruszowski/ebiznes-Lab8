@@ -1,0 +1,46 @@
+@(review: Review, updateForm: Form[UpdateReviewForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@main("Review details") {
+    <article>
+        @if(updateForm.hasErrors) {
+            <ul>
+            @for(error <- updateForm.errors) {
+                <li>@error.key = @error.format</li>
+            }
+            </ul>
+        }
+        <h2>Review #@review.id</h2>
+        @flash.get("success").getOrElse("")
+        @form(routes.ReviewController.update(review.id)) {
+            @helper.CSRF.formField
+            <input name="id" id="id" value="@updateForm("id").value" type="hidden" />
+            <label for="product">ProductId: </label>
+            <select name="product" id="product">
+                <option value="@review.product">@review.product</option>
+            </select>
+
+            <dl>
+                <dt>Rate</dt>
+                <dd>
+                    <select name="rate" id="rate">
+                    @for(value <- 1 to 5){
+                        @if(value == review.rate) {
+                            <option value="@value" selected>@value</option>
+                        } else {
+                            <option value="@value">@value</option>
+                        }
+                    }
+                    </select>
+                </dd>
+            </dl>
+
+            @inputText(updateForm("comment"))
+
+            <div class="buttons">
+                <input type="submit" value="Update review"/>
+            </div>
+        </article>
+}
+}

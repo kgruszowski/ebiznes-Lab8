@@ -1,0 +1,16 @@
+@(customers: Seq[Customer])
+
+@main("Customers list") {
+    <article>
+        <h2>Customers list</h2>
+        @for(customer <- customers) {
+            <div>
+                <strong><a href="@controllers.routes.CustomerController.details(customer.id)">
+                    @customer.id
+                    @customer.firstname
+                    @customer.surname</a>
+                </strong>
+            </div>
+        }
+    </article>
+}

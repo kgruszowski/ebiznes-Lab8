@@ -1,0 +1,36 @@
+@(createForm: Form[CreateReviewForm], products: Seq[(Product, Category)])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@main("Create review") {
+    <article>
+        <h2>Create new review</h2>
+        @flash.get("success").getOrElse("")
+        @form(routes.ReviewController.create()) {
+            @helper.CSRF.formField
+
+            <select name="product" id="product">
+            @for(tuple <- products){
+                <option value="@tuple._1.id">@tuple._1.name</option>
+            }
+            </select>
+
+            <dl>
+                <dt>Rate</dt>
+                <dd>
+                    <select name="rate" id="rate">
+                    @for(value <- 1 to 5){
+                        <option value="@value">@value</option>
+                    }
+                    </select>
+                </dd>
+            </dl>
+
+            @inputText(createForm("comment"))
+
+            <div class="buttons">
+                <input type="submit" value="Add Inventory"/>
+            </div>
+        }
+    </article>
+}

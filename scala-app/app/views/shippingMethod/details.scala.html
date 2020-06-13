@@ -1,0 +1,21 @@
+@(shippingMethod: ShippingMethod, updateForm: Form[UpdateShippingForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+    @import helper._
+
+    @main("Shipping Method details") {
+        <article>
+            <h2>Discount #@shippingMethod.id</h2>
+            @flash.get("success").getOrElse("")
+
+            @form(routes.ShippingController.update(shippingMethod.id)) {
+                @helper.CSRF.formField
+                <input name="id" id="id" value="@updateForm("id").value" type="hidden" />
+                @inputText(updateForm("name"))
+                @inputText(updateForm("deliveryTime"))
+                @inputText(updateForm("price"))
+                <div class="buttons">
+                    <input type="submit" value="Update Shipping Method"/>
+                </div>
+            }
+        </article>
+    }

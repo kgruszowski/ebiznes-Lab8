@@ -1,0 +1,19 @@
+@(createForm: Form[CreateDiscuntForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@main("Create discount") {
+    <article>
+        <h2>Create new discount</h2>
+        @flash.get("success").getOrElse("")
+        @form(routes.DiscountController.create()) {
+            @helper.CSRF.formField
+            @inputText(createForm("code"))
+            @inputText(createForm("value"))
+
+            <div class="buttons">
+                <input type="submit" value="Add Discount"/>
+            </div>
+        }
+    </article>
+}

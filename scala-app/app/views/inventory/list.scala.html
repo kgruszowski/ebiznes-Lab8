@@ -1,0 +1,15 @@
+@(inventories: Seq[(Inventory, Product)])
+
+@main("Inventory list") {
+    <article>
+        <h2>Inventory list</h2>
+        @for(inventory <- inventories) {
+            <div>
+                <strong><a href="@controllers.routes.InventoryController.details(inventory._1.id)">
+                    @inventory._2.name -> availability: @inventory._1.available/@inventory._1.quantity
+                </a>
+                </strong>
+            </div>
+        }
+    </article>
+}

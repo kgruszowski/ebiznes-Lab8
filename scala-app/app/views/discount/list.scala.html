@@ -1,0 +1,16 @@
+@(discounts: Seq[Discount])
+
+@main("Discount list") {
+    <article>
+        <h2>Available discounts</h2>
+        @for(discount <- discounts) {
+            <div>
+                <strong><a href="@controllers.routes.DiscountController.details(discount.id)">
+                    @discount.id
+                    @discount.code
+                </a>
+                </strong>
+            </div>
+        }
+    </article>
+}

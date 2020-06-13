@@ -1,0 +1,37 @@
+@(createForm: Form[CreateWishlistForm], products: Seq[(Product, Category)], customers: Seq[Customer])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@main("Create wishlist") {
+    <article>
+        <h2>Create new review</h2>
+        @flash.get("success").getOrElse("")
+        @form(routes.WishlistController.create()) {
+            @helper.CSRF.formField
+
+            @if(createForm.hasErrors) {
+                <ul>
+                @for(error <- createForm.errors) {
+                    <li>@error.key -> @error.format</li>
+                }
+                </ul>
+            }
+
+            <select name="product" id="product">
+            @for(tuple <- products){
+                <option value="@tuple._1.id">@tuple._1.name</option>
+            }
+            </select>
+
+            <select name="customer" id="customer">
+            @for(customer <- customers){
+                <option value="@customer.id">@customer.firstname @customer.surname</option>
+            }
+            </select>
+
+            <div class="buttons">
+                <input type="submit" value="Add to Wishlist"/>
+            </div>
+        }
+    </article>
+}

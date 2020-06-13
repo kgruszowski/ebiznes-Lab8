@@ -1,0 +1,26 @@
+@(createForm: Form[CreateInventoryForm], products: Seq[(Product, Category)])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@main("Create product") {
+    <article>
+        <h2>Create new product</h2>
+        @flash.get("success").getOrElse("")
+        @form(routes.InventoryController.create()) {
+            @helper.CSRF.formField
+
+            <select name="product" id="product">
+            @for(tuple <- products){
+                <option value="@tuple._1.id">@tuple._1.name</option>
+            }
+            </select>
+
+            @inputText(createForm("quantity"))
+            @inputText(createForm("available"))
+
+            <div class="buttons">
+                <input type="submit" value="Add Inventory"/>
+            </div>
+        }
+    </article>
+}

@@ -1,0 +1,14 @@
+@(order: (Order, ShippingMethod))
+
+@main("Order details") {
+    <article>
+        <h2>Order details</h2>
+        <ul>
+            <li>id: @order._1.id</li>
+            <li>cartId: <a href="@controllers.routes.CartController.details(order._1.cart)">@order._1.cart</a></li>
+            <li>Shipping Method: @order._2.name</li>
+            <li>Delivery Time: @order._2.deliveryTime</li>
+            <li>Shipping Pirce: @order._2.price</li>
+        </ul>
+    </article>
+}

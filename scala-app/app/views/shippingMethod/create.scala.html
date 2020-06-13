@@ -1,0 +1,20 @@
+@(createForm: Form[CreateShippingForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@import helper._
+
+@main("Customer details") {
+    <article>
+        <h2>Create new shipping method</h2>
+        @flash.get("success").getOrElse("")
+        @form(routes.ShippingController.create()) {
+            @helper.CSRF.formField
+            @inputText(createForm("name"))
+            @inputText(createForm("deliveryTime"))
+            @inputText(createForm("price"))
+
+            <div class="buttons">
+                <input type="submit" value="Add Price"/>
+            </div>
+        }
+    </article>
+}

@@ -1,0 +1,12 @@
+@(shippingMethods: Seq[ShippingMethod])
+
+@main("Shipping Methods") {
+    <article>
+        <h2>Shipping Methods</h2>
+        <ul>
+        @for(shippingMethod <- shippingMethods) {
+            <li><a href="@controllers.routes.ShippingController.details(shippingMethod.id)">@shippingMethod.name</a></li>
+        }
+        </ul>
+    </article>
+}
