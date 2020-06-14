@@ -1,8 +1,14 @@
 import React, {Component} from 'react';
 import './App.css';
 import Menu from "./Components/Menu";
+import {Link, Router} from "react-router-dom";
 
 class App extends Component {
+
+    constructor(props) {
+        super(props);
+    }
+
     render() {
         let links = [
             {label: "Product", link: "/products"},

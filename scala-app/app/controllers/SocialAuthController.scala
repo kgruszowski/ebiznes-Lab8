@@ -9,6 +9,7 @@ import com.mohiva.play.silhouette.impl.providers._
 import javax.inject.Inject
 import models.{User, UserService}
 import play.api.i18n.I18nSupport
+import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, AnyContent, ControllerComponents, Request}
 import utils.DefaultEnv
 
@@ -93,13 +94,15 @@ class SocialAuthController @Inject() (
           case Left(result) => Future.successful(result)
           case Right(authInfo) => for {
             profile <- p.retrieveProfile(authInfo)
-//            user <- userService.save(User(profile))
-            authInfo <- authInfoRepository.save(profile.loginInfo, authInfo)
+            user <- userService.save(User(profile))
+            createdAuthInfo: p.A <- authInfoRepository.save(profile.loginInfo, authInfo)
             authenticator <- silhouette.env.authenticatorService.create(profile.loginInfo)
             value <- silhouette.env.authenticatorService.init(authenticator)
-            result <- silhouette.env.authenticatorService.embed(value, Ok("LOGGED_IN"))
+            result <- silhouette.env.authenticatorService.embed(
+              value, Redirect("http://localhost:3000", Map("accessToken" -> Seq("Asd")))
+            )
           } yield {
-//            silhouette.env.eventBus.publish(LoginEvent(user, request))
+            silhouette.env.eventBus.publish(LoginEvent(user, request))
             result
           }
         }

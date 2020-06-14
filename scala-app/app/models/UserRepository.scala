@@ -1,5 +1,7 @@
 package models
 
+import java.util.UUID
+
 import javax.inject.{Inject, Singleton}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
@@ -14,19 +16,15 @@ class UserRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
   import profile.api._
 
   class UserTable(tag: Tag) extends Table[User](tag, "user") {
-    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    def id = column[Option[Int]]("id", O.PrimaryKey, O.AutoInc)
 
-    def firstName = column[Option[String]]("firstname")
+    def userId = column[UUID]("user_id")
 
-    def lastName = column[Option[String]]("surname")
+    def name = column[String]("name")
 
-    def email = column[Option[String]]("address")
+    def email = column[String]("email")
 
-    def providerID = column[String]("address")
-
-    def providerKey = column[String]("address")
-
-    def * = (id, firstName, lastName, email, providerID, providerKey) <> ((User.apply _).tupled, User.unapply)
+    def * = (id, userId, name, email) <> ((User.mapperTo _).tupled, User.mapperFrom)
   }
 
   val userTable = TableQuery[UserTable]
