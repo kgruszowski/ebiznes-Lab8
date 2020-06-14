@@ -1,6 +1,6 @@
 package controllers
 
-import com.mohiva.play.silhouette.api.Silhouette
+import com.mohiva.play.silhouette.api.{HandlerResult, Silhouette}
 import javax.inject._
 import models.{Category, CategoryRepository}
 import play.api.data.Form
@@ -18,6 +18,18 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CategoryController @Inject()(categoryRepo: CategoryRepository, silhouette: Silhouette[DefaultEnv], cc: MessagesControllerComponents)
                                   (implicit ec:ExecutionContext) extends MessagesAbstractController(cc) {
+
+  /**
+   * An example for a secured request handler.
+   */
+  def securedRequestHandler = Action.async { implicit request =>
+    silhouette.SecuredRequestHandler { securedRequest =>
+      Future.successful(HandlerResult(Ok, Some(securedRequest.identity)))
+    }.map {
+      case HandlerResult(r, Some(user)) => Ok(Json.toJson(user.email))
+      case HandlerResult(r, None) => Unauthorized
+    }
+  }
 
   val categoryForm: Form[CreateCategoryForm] = Form {
     mapping(

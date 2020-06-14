@@ -39,49 +39,6 @@ class SocialAuthController @Inject() (
                                      )(implicit executionContext: ExecutionContext) extends AbstractController(components) with I18nSupport with Logger {
 
   /**
-   * OAuthInfoFromToken extracts the token from the request (as seen in the authenticate method of FacebookTokenProvider)
-   * It then returns optionally an OAuth2Info with the info.
-   */
-//  def authenticateToken(provider: String) = silhouette.UnsecuredAction.async { implicit request =>
-//    val authInfoData = SocialAuthForm.form.bindFromRequest.fold(
-//      form => None,
-//      data => Some(SocialAuthForm.toAuthToken(data))
-//    )
-//    ((socialProviderRegistry.get[SocialProvider](provider), authInfoData) match {
-//      case (Some(p: OAuth2Provider with CommonSocialProfileBuilder), Some(authInfo)) =>
-//        for {
-//          profile <- p.retrieveProfile(authInfo)
-//          user <- userService.save(User(profile))
-//          // We are using the user's email for the providerID rather than the numeric value returned by the provider.
-//          loginInfo <- Future.successful(LoginInfo(provider, user.email))
-//          authenticator <- silhouette.env.authenticatorService.create(loginInfo)
-//          value <- silhouette.env.authenticatorService.init(authenticator)
-//          result <- silhouette.env.authenticatorService.embed(value, Ok)
-//        } yield {
-//          actorSystem.scheduler.scheduleOnce(1 millis) {
-//            authInfoRepository.add(loginInfo, authInfo)
-//          }
-//
-//          silhouette.env.eventBus.publish(LoginEvent(user, request))
-//          result
-//        }
-//      case (_, None) =>
-//        Future.failed(
-//          new OAuth2StateException(s"No token found in the request while authenticating with \$provider")
-//        )
-//      case _ =>
-//        Future.failed(new ProviderException(s"Cannot authenticate with unexpected social provider \$provider"))
-//    }).recover {
-//      case e: OAuth2StateException =>
-//        logger.error("Unexpected token error", e)
-//        NotFound
-//      case e: ProviderException =>
-//        logger.error("Unexpected provider error", e)
-//        NotFound
-//    }
-//  }
-
-  /**
    * Authenticates a user against a social provider.
    *
    * @param provider The ID of the provider to authenticate against.
@@ -95,15 +52,13 @@ class SocialAuthController @Inject() (
           case Right(authInfo) => for {
             profile <- p.retrieveProfile(authInfo)
             user <- userService.save(User(profile))
-            createdAuthInfo: p.A <- authInfoRepository.save(profile.loginInfo, authInfo)
+            authInfo <- authInfoRepository.save(profile.loginInfo, authInfo)
             authenticator <- silhouette.env.authenticatorService.create(profile.loginInfo)
             value <- silhouette.env.authenticatorService.init(authenticator)
-            result <- silhouette.env.authenticatorService.embed(
-              value, Redirect("http://localhost:3000", Map("accessToken" -> Seq("Asd")))
-            )
+            result <- silhouette.env.authenticatorService.embed(value, Ok)
           } yield {
             silhouette.env.eventBus.publish(LoginEvent(user, request))
-            result
+            Redirect("http://localhost:3000", Map("accessToken" -> Seq(value)))
           }
         }
       case _ => Future.failed(new ProviderException(s"Cannot authenticate with unexpected social provider"))

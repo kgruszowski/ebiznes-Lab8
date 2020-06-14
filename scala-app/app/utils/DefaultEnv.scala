@@ -6,5 +6,5 @@ import models.User
 
 trait DefaultEnv extends Env{
   type I = User
-  type A = CookieAuthenticator
+  type A = JWTAuthenticator
 }

@@ -73,7 +73,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
    */
   @Provides
   def provideEnvironment(userService: UserService,
-                         authenticatorService: AuthenticatorService[CookieAuthenticator],
+                         authenticatorService: AuthenticatorService[JWTAuthenticator],
                          eventBus: EventBus): Environment[DefaultEnv] =
     Environment[DefaultEnv](userService, authenticatorService, Seq(), eventBus)
 
@@ -92,67 +92,24 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     new JcaCrypter(config)
   }
 
-//  /**
-//   * Provides the authenticator service.
-//   *
-//   * @param crypter       The crypter implementation.
-//   * @param idGenerator   The ID generator implementation.
-//   * @param configuration The Play configuration.
-//   * @param clock         The clock instance.
-//   * @return The authenticator service.
-//   */
-//  @Provides
-//  def provideAuthenticatorService(@Named("authenticator-crypter") crypter: Crypter,
-//                                  idGenerator: IDGenerator,
-//                                  configuration: Configuration,
-//                                  clock: Clock): AuthenticatorService[JWTAuthenticator] = {
-//    val settings = JWTAuthenticatorSettings(sharedSecret = configuration.get[String]("play.http.secret.key"))
-//    val encoder = new CrypterAuthenticatorEncoder(crypter)
-//
-//    new JWTAuthenticatorService(settings, None, encoder, idGenerator, clock)
-//  }
-  /**
-   * Provides the signer for the authenticator.
-   *
-   * @param configuration The Play configuration.
-   * @return The signer for the authenticator.
-   */
-  @Provides @Named("authenticator-signer")
-  def provideAuthenticatorSigner(configuration: Configuration): Signer = {
-    val config = JcaSignerSettings("blebletest")
-
-    new JcaSigner(config)
-  }
-
   /**
    * Provides the authenticator service.
    *
-   * @param signer The signer implementation.
-   * @param crypter The crypter implementation.
-   * @param cookieHeaderEncoding Logic for encoding and decoding `Cookie` and `Set-Cookie` headers.
-   * @param fingerprintGenerator The fingerprint generator implementation.
-   * @param idGenerator The ID generator implementation.
+   * @param crypter       The crypter implementation.
+   * @param idGenerator   The ID generator implementation.
    * @param configuration The Play configuration.
-   * @param clock The clock instance.
+   * @param clock         The clock instance.
    * @return The authenticator service.
    */
   @Provides
-  def provideAuthenticatorService(
-                                   @Named("authenticator-signer") signer: Signer,
-                                   @Named("authenticator-crypter") crypter: Crypter,
-                                   cookieHeaderEncoding: CookieHeaderEncoding,
-                                   fingerprintGenerator: FingerprintGenerator,
-                                   idGenerator: IDGenerator,
-                                   configuration: Configuration,
-                                   clock: Clock): AuthenticatorService[CookieAuthenticator] = {
+  def provideAuthenticatorService(@Named("authenticator-crypter") crypter: Crypter,
+                                  idGenerator: IDGenerator,
+                                  configuration: Configuration,
+                                  clock: Clock): AuthenticatorService[JWTAuthenticator] = {
+    val settings = JWTAuthenticatorSettings(sharedSecret = configuration.get[String]("silhouette.authenticator.jwt.key"))
+    val encoder = new CrypterAuthenticatorEncoder(crypter)
 
-    val config = CookieAuthenticatorSettings(
-      secureCookie = false,
-      cookiePath="/"
-    )
-    val authenticatorEncoder = new CrypterAuthenticatorEncoder(crypter)
-
-    new CookieAuthenticatorService(config, None, signer, cookieHeaderEncoding, authenticatorEncoder, fingerprintGenerator, idGenerator, clock)
+    new JWTAuthenticatorService(settings, None, encoder, idGenerator, clock)
   }
 
   /**
