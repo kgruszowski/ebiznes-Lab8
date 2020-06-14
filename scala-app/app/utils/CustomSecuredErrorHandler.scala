@@ -51,5 +51,5 @@ class CustomSecuredErrorHandler @Inject()(val messagesApi: MessagesApi)
     })
 
   protected def toJsonError(message: String) =
-    Json.obj("message" -> message)
+    Json.obj("message" -> "test")
 }

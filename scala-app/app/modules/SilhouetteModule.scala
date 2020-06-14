@@ -34,13 +34,13 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 
   override def configure(): Unit = {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
-    bind[UnsecuredErrorHandler].to[CustomUnsecuredErrorHandler]
-    bind[SecuredErrorHandler].to[CustomSecuredErrorHandler]
+//    bind[UnsecuredErrorHandler].to[CustomUnsecuredErrorHandler]
+//    bind[SecuredErrorHandler].to[CustomSecuredErrorHandler]
     bind[IDGenerator].toInstance(new SecureRandomIDGenerator())
     bind[EventBus].toInstance(EventBus())
     bind[Clock].toInstance(Clock())
     bind[DelegableAuthInfoDAO[OAuth2Info]].to[SocialAuthInfoDAOImpl]
-    bind[FingerprintGenerator].toInstance(new DefaultFingerprintGenerator(false))
+//    bind[FingerprintGenerator].toInstance(new DefaultFingerprintGenerator(false))
   }
 
   /**

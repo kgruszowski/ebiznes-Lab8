@@ -34,7 +34,7 @@ object User {
     id = None,
     userId = UUID.randomUUID(),
     name = profile.fullName.getOrElse(profile.firstName.get + " " + profile.lastName.get),
-    email = profile.email.get
+    email = profile.loginInfo.providerKey
   )
 }
 
