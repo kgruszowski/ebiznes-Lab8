@@ -1,14 +1,23 @@
 import React, {Component} from "react";
 import ProductCard from "./ProductCard";
-import {Link} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 
 class ProductList extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+
+        let accessToken =new URLSearchParams(this.props.location.search).get("accessToken")
+
+        if (accessToken) {
+            localStorage.setItem('accessToken', accessToken);
+        }
+
         this.state = {
             products: [],
+            unauthorizedError: false
         }
+
     }
 
     componentDidMount() {
@@ -16,11 +25,7 @@ class ProductList extends Component {
 
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {
@@ -32,10 +37,14 @@ class ProductList extends Component {
                 )
             })
             this.setState({products: products})
-        })
+        }).catch(error => this.setState({unauthorizedError: true}))
     }
 
     render() {
+        if (this.state.unauthorizedError) {
+            return <Redirect to={"/sign-in"}/>
+        }
+
         return (
             <div className="container">
                 <div className="row">

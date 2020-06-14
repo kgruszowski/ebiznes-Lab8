@@ -18,13 +18,11 @@ class UserRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
   class UserTable(tag: Tag) extends Table[User](tag, "user") {
     def id = column[Option[Int]]("id", O.PrimaryKey, O.AutoInc)
 
-    def userId = column[UUID]("user_id")
-
     def name = column[String]("name")
 
     def email = column[String]("email")
 
-    def * = (id, userId, name, email) <> ((User.mapperTo _).tupled, User.mapperFrom)
+    def * = (id, name, email) <> ((User.mapperTo _).tupled, User.mapperFrom)
   }
 
   val userTable = TableQuery[UserTable]

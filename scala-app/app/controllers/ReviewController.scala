@@ -1,11 +1,13 @@
 package controllers
 
+import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
 import models.{Category, Product, ProductRepository, Review, ReviewRepository}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import play.api.mvc._
+import utils.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -15,7 +17,7 @@ import scala.util.{Failure, Success}
  * application's review page.
  */
 @Singleton
-class ReviewController @Inject()(reviewRepository: ReviewRepository, productRepository: ProductRepository, cc: MessagesControllerComponents)
+class ReviewController @Inject()(reviewRepository: ReviewRepository, productRepository: ProductRepository, silhouette: Silhouette[DefaultEnv], cc: MessagesControllerComponents)
                                 (implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   val reviewForm: Form[CreateReviewForm] = Form {
@@ -99,17 +101,17 @@ class ReviewController @Inject()(reviewRepository: ReviewRepository, productRepo
     )
   }
 
-  def apiList = Action.async { implicit request =>
+  def apiList = silhouette.SecuredAction.async { implicit request =>
     val reviewList = reviewRepository.list()
     reviewList.map(list => Ok(Json.toJson(list)))
   }
 
-  def apiListByProduct(productId: Long) = Action.async { implicit request =>
+  def apiListByProduct(productId: Long) = silhouette.SecuredAction.async { implicit request =>
     val reviewList = reviewRepository.listByProductId(productId)
     reviewList.map(list => Ok(Json.toJson(list)))
   }
 
-  def apiGet(id: Long) = Action.async { implicit request =>
+  def apiGet(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val review = reviewRepository.getById(id)
     review.map(review => review match {
       case Some(i) => Ok(Json.obj("review" -> Json.toJson(i)))
@@ -117,14 +119,14 @@ class ReviewController @Inject()(reviewRepository: ReviewRepository, productRepo
     })
   }
 
-  def apiAdd = Action.async { implicit request =>
+  def apiAdd = silhouette.SecuredAction.async { implicit request =>
     val review = request.body.asJson.get.as[Review]
     reviewRepository.create(review.rate, review.comment, review.product).map(newEntity => {
       Ok(Json.obj("review" -> Json.toJson(newEntity)))
     })
   }
 
-  def apiUpdate(id: Long) = Action.async { implicit request =>
+  def apiUpdate(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val review = request.body.asJson.get.as[Review]
     reviewRepository.update(id, review).map(updatedEntity => updatedEntity match{
       case Some(c) => Ok(Json.obj("review" -> Json.toJson(c)))
@@ -132,7 +134,7 @@ class ReviewController @Inject()(reviewRepository: ReviewRepository, productRepo
     })
   }
 
-  def apiDelete(id: Long)= Action {
+  def apiDelete(id: Long)= silhouette.SecuredAction {
     reviewRepository.delete(id)
     Ok(Json.obj("result" -> "ok"))
   }

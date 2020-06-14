@@ -1,5 +1,7 @@
 package modules
 
+import java.util.concurrent.TimeUnit
+
 import com.google.inject.name.Named
 import com.google.inject.{AbstractModule, Provides}
 import com.mohiva.play.silhouette.api.crypto.{Crypter, CrypterAuthenticatorEncoder, Signer}
@@ -106,7 +108,10 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
                                   idGenerator: IDGenerator,
                                   configuration: Configuration,
                                   clock: Clock): AuthenticatorService[JWTAuthenticator] = {
-    val settings = JWTAuthenticatorSettings(sharedSecret = configuration.get[String]("silhouette.authenticator.jwt.key"))
+    val settings = JWTAuthenticatorSettings(
+      sharedSecret = configuration.get[String]("silhouette.authenticator.jwt.key"),
+      authenticatorExpiry = FiniteDuration(60, TimeUnit.SECONDS)
+    )
     val encoder = new CrypterAuthenticatorEncoder(crypter)
 
     new JWTAuthenticatorService(settings, None, encoder, idGenerator, clock)

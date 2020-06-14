@@ -1,7 +1,8 @@
 package controllers
 
+import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
-import models.{Order, Cart, CartRepository, Discount, DiscountRepository, OrderRepository, Product, ShippingMethod, ShippingMethodRepository}
+import models.{Cart, CartRepository, Discount, DiscountRepository, Order, OrderRepository, Product, ShippingMethod, ShippingMethodRepository}
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
@@ -10,6 +11,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 import play.api.libs.json.Json
+import utils.DefaultEnv
 
 
 /**
@@ -23,6 +25,7 @@ class OrderController @Inject()
   cartRepository: CartRepository,
   shippingMethodRepository: ShippingMethodRepository,
   discountRepository: DiscountRepository,
+  silhouette: Silhouette[DefaultEnv],
   cc: MessagesControllerComponents
 )
 (implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
@@ -89,17 +92,17 @@ class OrderController @Inject()
     Ok(views.html.index("DELETE: /order/" + id))
   }
 
-  def apiList = Action.async { implicit request =>
+  def apiList = silhouette.SecuredAction.async { implicit request =>
     val orderList = orderRepository.list()
     orderList.map(orders => Ok(Json.toJson(orders)))
   }
 
-  def apiListByCustomer(customerId: Long): Action[AnyContent] = Action.async { implicit request =>
+  def apiListByCustomer(customerId: Long): Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
     val orderList = orderRepository.listByCustomer(customerId)
     orderList.map(orders => Ok(Json.toJson(orders)))
   }
 
-  def apiGet(id: Long) = Action.async { implicit request =>
+  def apiGet(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val orders = orderRepository.getByIdForApi(id)
     orders.map(order => order match {
       case Some(c) => Ok(Json.obj("order" -> Json.toJson(c)))
@@ -107,7 +110,7 @@ class OrderController @Inject()
     })
   }
 
-  def apiAdd = Action.async { implicit request =>
+  def apiAdd = silhouette.SecuredAction.async { implicit request =>
     val order = request.body.asJson.get.as[Order]
     orderRepository.create(order.cart, order.discount, order.shippingMethod).map(newEntity => {
       val disableCartAction = cartRepository.disableCart(newEntity.cart)
@@ -118,11 +121,11 @@ class OrderController @Inject()
     })
   }
 
-  def apiUpdate(id: Long) = Action { implicit request =>
+  def apiUpdate(id: Long) = silhouette.SecuredAction { implicit request =>
     MethodNotAllowed
   }
 
-  def apiDelete(id: Long) = Action {
+  def apiDelete(id: Long) = silhouette.SecuredAction {
     orderRepository.delete(id)
     Ok(Json.obj("result" -> "ok"))
   }

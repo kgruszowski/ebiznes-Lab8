@@ -1,11 +1,14 @@
 package controllers
 
+import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
 import models.{Customer, CustomerRepository}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc._
 import play.api.libs.json.Json
+import utils.DefaultEnv
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -14,7 +17,7 @@ import scala.util.{Failure, Success}
  * application's customer page.
  */
 @Singleton
-class CustomerController @Inject()(customerRepository: CustomerRepository, cc: MessagesControllerComponents)
+class CustomerController @Inject()(customerRepository: CustomerRepository, silhouette: Silhouette[DefaultEnv], cc: MessagesControllerComponents)
                                   (implicit ec:ExecutionContext) extends MessagesAbstractController(cc) {
 
   val customerForm: Form[CreateCustomerForm] = Form {
@@ -89,12 +92,12 @@ class CustomerController @Inject()(customerRepository: CustomerRepository, cc: M
     )
   }
 
-  def apiList = Action.async { implicit request =>
+  def apiList = silhouette.SecuredAction.async { implicit request =>
     val customerList = customerRepository.list()
     customerList.map(customers => Ok(Json.toJson(customers)))
   }
 
-  def apiGet(id: Long) = Action.async { implicit request =>
+  def apiGet(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val customer = customerRepository.getById(id)
     customer.map(customer => customer match {
       case Some(c) => Ok(Json.obj("customer" -> Json.toJson(c)))
@@ -102,14 +105,14 @@ class CustomerController @Inject()(customerRepository: CustomerRepository, cc: M
     })
   }
 
-  def apiAdd = Action.async { implicit request =>
+  def apiAdd = silhouette.SecuredAction.async { implicit request =>
     val customer = request.body.asJson.get.as[Customer]
     customerRepository.create(customer.firstname, customer.surname, customer.address).map(newEntity => {
       Ok(Json.obj("customer" -> Json.toJson(newEntity)))
     })
   }
 
-  def apiUpdate(id: Long) = Action.async { implicit request =>
+  def apiUpdate(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val customer = request.body.asJson.get.as[Customer]
     customerRepository.update(id, customer).map(updatedEntity => updatedEntity match{
       case Some(e) => Ok(Json.obj("customer" -> Json.toJson(e)))
@@ -117,7 +120,7 @@ class CustomerController @Inject()(customerRepository: CustomerRepository, cc: M
     })
   }
 
-  def apiDelete(id: Long)= Action {
+  def apiDelete(id: Long)= silhouette.SecuredAction {
     customerRepository.delete(id)
     Ok(Json.obj("result" -> "ok"))
   }

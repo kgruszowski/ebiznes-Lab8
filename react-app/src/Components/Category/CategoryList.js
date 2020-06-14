@@ -1,12 +1,14 @@
 import React, {Component} from "react";
-import {Link} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
+
 
 class CategoryList extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             categories: [],
+            unauthorizedError: false
         }
     }
 
@@ -15,11 +17,7 @@ class CategoryList extends Component {
 
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {
@@ -33,10 +31,14 @@ class CategoryList extends Component {
                 )
             })
             this.setState({categories: categories})
-        })
+        }).catch(error => this.setState({unauthorizedError: true}))
     }
 
     render() {
+        if (this.state.unauthorizedError) {
+            return <Redirect to={"/sign-in"}/>
+        }
+
         return (
             <div className="container">
                 <div className="categories">

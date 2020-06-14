@@ -97,7 +97,6 @@ CREATE TABLE "social_auth_info" (
 
 CREATE TABLE "user" (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    user_id BINARY(16) NOT NULL,
     name VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL
 );

@@ -1,11 +1,13 @@
 package controllers
 
+import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
 import models.{Cart, CartRepository, Category, Customer, CustomerRepository, Product, ProductRepository}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import play.api.mvc._
+import utils.DefaultEnv
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -16,7 +18,11 @@ import scala.util.{Failure, Success, Try}
  * application's cart page.
  */
 @Singleton
-class CartController @Inject()(cartRepository: CartRepository, customerRepository: CustomerRepository, productRepository: ProductRepository, cc: MessagesControllerComponents)
+class CartController @Inject()(cartRepository: CartRepository,
+                               customerRepository: CustomerRepository,
+                               productRepository: ProductRepository,
+                               silhouette: Silhouette[DefaultEnv],
+                               cc: MessagesControllerComponents)
                               (implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   val cartForm: Form[CreateCartForm] = Form {
@@ -130,12 +136,12 @@ class CartController @Inject()(cartRepository: CartRepository, customerRepositor
     )
   }
 
-  def apiList = Action.async { implicit request =>
+  def apiList = silhouette.SecuredAction.async { implicit request =>
     val cartList = cartRepository.list()
     cartList.map(list => Ok(Json.toJson(list)))
   }
 
-  def apiGet(id: Long) = Action.async { implicit request =>
+  def apiGet(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val cart = cartRepository.getById(id)
     cart.map(cart => cart match {
       case Some(i) => {
@@ -152,7 +158,7 @@ class CartController @Inject()(cartRepository: CartRepository, customerRepositor
     })
   }
 
-  def apiGetForCustomer(customerId: Long) = Action.async { implicit request =>
+  def apiGetForCustomer(customerId: Long) = silhouette.SecuredAction.async { implicit request =>
     val cart = cartRepository.getByCustomerId(customerId)
     cart.map(cart => cart match {
       case Some(c) => {
@@ -169,7 +175,7 @@ class CartController @Inject()(cartRepository: CartRepository, customerRepositor
     })
   }
 
-    def apiAdd = Action.async { implicit request =>
+    def apiAdd = silhouette.SecuredAction.async { implicit request =>
       val cart = request.body.asJson.get("cart").as[Cart]
       val productIdsList = request.body.asJson.get("products").as[Seq[Long]]
 
@@ -179,7 +185,7 @@ class CartController @Inject()(cartRepository: CartRepository, customerRepositor
       })
     }
 
-    def apiUpdate(id: Long) = Action.async { implicit request =>
+    def apiUpdate(id: Long) = silhouette.SecuredAction.async { implicit request =>
       val productIdsList = request.body.asJson.get("products").as[Seq[Long]]
       cartRepository.update(id, productIdsList.map(_.toString))
 
@@ -190,7 +196,7 @@ class CartController @Inject()(cartRepository: CartRepository, customerRepositor
       })
     }
 
-  def apiDelete(id: Long) = Action.async { implicit request =>
+  def apiDelete(id: Long) = silhouette.SecuredAction.async { implicit request =>
     cartRepository.deleteCartProducts(id).map {_ =>
       cartRepository.delete(id)
       Ok(Json.obj("result" -> "ok"))

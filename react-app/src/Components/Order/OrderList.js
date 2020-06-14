@@ -1,12 +1,13 @@
 import React, {Component} from "react";
-import {Link} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 
 class OrderList extends Component {
     constructor(props) {
         super(props);
         this.state = {
             customerId: 1,
-            orders: []
+            orders: [],
+            unauthorizedError: false
         }
     }
 
@@ -15,11 +16,7 @@ class OrderList extends Component {
 
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {
@@ -31,10 +28,14 @@ class OrderList extends Component {
                 }
             })
             this.setState({orders: orders})
-        })
+        }).catch(error => this.setState({unauthorizedError: true}))
     }
 
     render() {
+        if (this.state.unauthorizedError) {
+            return <Redirect to={"/sign-in"}/>
+        }
+
         return (
             <div>
                 <h3>Cart content</h3>

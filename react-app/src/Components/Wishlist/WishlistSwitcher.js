@@ -26,11 +26,7 @@ class WishlistSwitcher extends Component {
         let url = "http://localhost:9000/api/wishlist/" + this.state.id;
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'DELETE',
         }).then(result => {
             this.setState({
@@ -50,10 +46,7 @@ class WishlistSwitcher extends Component {
 
         fetch(url, {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
+            headers: {},
             body: JSON.stringify(data),
         }).then(results => {
             return results.json();
@@ -86,11 +79,7 @@ class WishlistSwitcher extends Component {
         let url = "http://localhost:9000/api/wishlists/customer/" + this.state.customerId;
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {

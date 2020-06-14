@@ -1,5 +1,6 @@
 package controllers
 
+import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
 import models.{Category, CategoryRepository, Product, ProductRepository}
 import play.api.mvc._
@@ -10,6 +11,7 @@ import scala.util.{Failure, Success}
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.data.format.Formats._
 import play.api.libs.json.Json
+import utils.DefaultEnv
 
 
 /**
@@ -17,7 +19,7 @@ import play.api.libs.json.Json
  * application's product page.
  */
 @Singleton
-class ProductController @Inject()(productRepo: ProductRepository, categoryRepo: CategoryRepository, cc: MessagesControllerComponents)
+class ProductController @Inject()(productRepo: ProductRepository, categoryRepo: CategoryRepository, silhouette: Silhouette[DefaultEnv], cc: MessagesControllerComponents)
                                  (implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   val productForm: Form[CreateProductForm] = Form {
@@ -115,12 +117,12 @@ class ProductController @Inject()(productRepo: ProductRepository, categoryRepo: 
     )
   }
 
-  def apiList = Action.async { implicit request =>
+  def apiList = silhouette.SecuredAction.async { implicit request =>
     val productList = productRepo.list()
     productList.map(products => Ok(Json.toJson(products)))
   }
 
-  def apiGet(id: Long) = Action.async { implicit request =>
+  def apiGet(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val product = productRepo.getById(id)
     product.map(product => product match {
       case Some(c) => Ok(Json.obj("product" -> Json.toJson(c)))
@@ -128,14 +130,14 @@ class ProductController @Inject()(productRepo: ProductRepository, categoryRepo: 
     })
   }
 
-  def apiAdd = Action.async { implicit request =>
+  def apiAdd = silhouette.SecuredAction.async { implicit request =>
     val product = request.body.asJson.get.as[Product]
     productRepo.create(product.name, product.description, product.photo, product.price, product.category).map(newEntity => {
       Ok(Json.obj("product" -> Json.toJson(newEntity)))
     })
   }
 
-  def apiUpdate(id: Long) = Action.async { implicit request =>
+  def apiUpdate(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val product = request.body.asJson.get.as[Product]
     productRepo.update(id, product).map(updatedEntity => updatedEntity match{
       case Some(e) => Ok(Json.obj("product" -> Json.toJson(e)))
@@ -143,7 +145,7 @@ class ProductController @Inject()(productRepo: ProductRepository, categoryRepo: 
     })
   }
 
-  def apiDelete(id: Long) = Action {
+  def apiDelete(id: Long) = silhouette.SecuredAction {
     productRepo.delete(id)
     Ok(Json.obj("result" -> "ok"))
   }

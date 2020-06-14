@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Link} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 
 class ShippingList extends Component {
 
@@ -7,6 +7,7 @@ class ShippingList extends Component {
         super();
         this.state = {
             shipping: [],
+            unauthorizedError: false
         }
     }
 
@@ -15,11 +16,7 @@ class ShippingList extends Component {
 
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {
@@ -33,10 +30,14 @@ class ShippingList extends Component {
                 )
             })
             this.setState({shipping: methods})
-        })
+        }).catch(error => this.setState({unauthorizedError: true}))
     }
 
     render() {
+        if (this.state.unauthorizedError) {
+            return <Redirect to={"/sign-in"}/>
+        }
+
         return (
             <div className="container">
                 <div className="shippings">

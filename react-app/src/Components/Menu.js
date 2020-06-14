@@ -15,6 +15,7 @@ import {ReviewAdd, ReviewEdit} from "./Review";
 import {WishlistSwitcher, WishlistList} from "./Wishlist";
 import {CartDetails, CartIcon} from "./Cart";
 import {OrderDetails, OrderList} from "./Order";
+import {SocialSignIn} from "./SignIn";
 
 class Menu extends Component {
     linksMarkup = this.props.links.map((link, index) =>
@@ -46,11 +47,7 @@ class Menu extends Component {
                     </div>
                 </div>
             </nav>
-            <div className="container">
-                <h3>Sign in </h3>
-                    <a className="btn btn-md btn-danger" href="http://localhost:9000/authenticate/google">Google</a>
-                    <a className="btn btn-md btn-info" href="http://localhost:9000/authenticate/github">Github</a>
-            </div>
+
             <Switch>
                 <Route path="/products" component={ProductList}/>
                 <Route path="/product/add" component={ProductAdd}/>
@@ -90,6 +87,8 @@ class Menu extends Component {
 
                 <Route path="/orders" component={OrderList} />
                 <Route path="/order/:id" component={OrderDetails} />
+
+                <Route path="/sign-in" component={SocialSignIn} />
             </Switch>
         </Router>
     }

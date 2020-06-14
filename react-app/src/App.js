@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import Menu from "./Components/Menu";
-import {Link, Router} from "react-router-dom";
+import unregister from "./interceptor"
 
 class App extends Component {
 

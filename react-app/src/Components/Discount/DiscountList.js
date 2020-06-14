@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Link} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 
 class DiscountList extends Component {
 
@@ -7,6 +7,7 @@ class DiscountList extends Component {
         super(props);
         this.state = {
             discounts: [],
+            unauthorizedError: false
         }
     }
 
@@ -15,11 +16,7 @@ class DiscountList extends Component {
 
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {
@@ -33,10 +30,14 @@ class DiscountList extends Component {
                 )
             })
             this.setState({discounts: discounts})
-        })
+        }).catch(error => this.setState({unauthorizedError: true}))
     }
 
     render() {
+        if (this.state.unauthorizedError) {
+            return <Redirect to={"/sign-in"}/>
+        }
+
         return (
             <div className="container">
                 <div className="discounts">

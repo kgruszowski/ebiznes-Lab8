@@ -1,12 +1,13 @@
 import React, {Component} from "react";
-import {Link} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 
 class WishlistList extends Component {
     constructor(props) {
         super(props);
         this.state = {
             customer: 1,
-            wishlistedProducts: ""
+            wishlistedProducts: "",
+            unauthorizedError: false
         }
     }
 
@@ -15,11 +16,7 @@ class WishlistList extends Component {
 
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {
@@ -34,10 +31,14 @@ class WishlistList extends Component {
                 )
             })
             this.setState({wishlistedProducts: wishlistedProducts})
-        })
+        }).catch(error => this.setState({unauthorizedError: true}))
     }
 
     render() {
+        if (this.state.unauthorizedError) {
+            return <Redirect to={"/sign-in"}/>
+        }
+
         return (
             <div className="item-container">
                 <div className="container">

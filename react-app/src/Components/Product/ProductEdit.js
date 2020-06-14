@@ -32,10 +32,7 @@ class ProductEdit extends Component {
 
         fetch(url, {
             method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
+            headers: {},
             body: JSON.stringify(data),
         }).then(result => {
             this.setState({productEdited: true})
@@ -59,11 +56,7 @@ class ProductEdit extends Component {
 
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {
@@ -89,11 +82,7 @@ class ProductEdit extends Component {
         let url = "http://localhost:9000/api/product/" + this.state.id;
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {

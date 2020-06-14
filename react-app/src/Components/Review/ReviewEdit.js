@@ -26,11 +26,7 @@ class ReviewEdit extends Component {
         let url = "http://localhost:9000/api/review/" + this.state.id;
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {
@@ -66,10 +62,7 @@ class ReviewEdit extends Component {
 
         fetch(url, {
             method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
+            headers: {},
             body: JSON.stringify(data),
         }).then(results => {
             return results.json();

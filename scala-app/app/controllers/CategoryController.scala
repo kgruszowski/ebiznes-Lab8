@@ -19,18 +19,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class CategoryController @Inject()(categoryRepo: CategoryRepository, silhouette: Silhouette[DefaultEnv], cc: MessagesControllerComponents)
                                   (implicit ec:ExecutionContext) extends MessagesAbstractController(cc) {
 
-  /**
-   * An example for a secured request handler.
-   */
-  def securedRequestHandler = Action.async { implicit request =>
-    silhouette.SecuredRequestHandler { securedRequest =>
-      Future.successful(HandlerResult(Ok, Some(securedRequest.identity)))
-    }.map {
-      case HandlerResult(r, Some(user)) => Ok(Json.toJson(user.email))
-      case HandlerResult(r, None) => Unauthorized
-    }
-  }
-
   val categoryForm: Form[CreateCategoryForm] = Form {
     mapping(
       "name" -> nonEmptyText,
@@ -104,7 +92,7 @@ class CategoryController @Inject()(categoryRepo: CategoryRepository, silhouette:
     categoryList.map(list => Ok(Json.toJson(list)))
   }
 
-  def apiGet(id: Long) = Action.async { implicit request =>
+  def apiGet(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val category = categoryRepo.getById(id)
     category.map(category => category match {
       case Some(i) => Ok(Json.obj("category" -> Json.toJson(i)))
@@ -112,14 +100,14 @@ class CategoryController @Inject()(categoryRepo: CategoryRepository, silhouette:
     })
   }
 
-  def apiAdd = Action.async { implicit request =>
+  def apiAdd = silhouette.SecuredAction.async { implicit request =>
     val category = request.body.asJson.get.as[Category]
     categoryRepo.create(category.name).map(newEntity => {
       Ok(Json.obj("category" -> Json.toJson(newEntity)))
     })
   }
 
-  def apiUpdate(id: Long) = Action.async { implicit request =>
+  def apiUpdate(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val category = request.body.asJson.get.as[Category]
     categoryRepo.update(id, category).map(updatedEntity => updatedEntity match{
       case Some(e) => Ok(Json.obj("category" -> Json.toJson(e)))
@@ -127,7 +115,7 @@ class CategoryController @Inject()(categoryRepo: CategoryRepository, silhouette:
     })
   }
 
-  def apiDelete(id: Long)= Action {
+  def apiDelete(id: Long)= silhouette.SecuredAction {
     categoryRepo.delete(id)
     Ok(Json.obj("result" -> "ok"))
   }

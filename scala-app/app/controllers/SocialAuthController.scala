@@ -58,7 +58,7 @@ class SocialAuthController @Inject() (
             result <- silhouette.env.authenticatorService.embed(value, Ok)
           } yield {
             silhouette.env.eventBus.publish(LoginEvent(user, request))
-            Redirect("http://localhost:3000", Map("accessToken" -> Seq(value)))
+            Redirect("http://localhost:3000/products", Map("accessToken" -> Seq(value)))
           }
         }
       case _ => Future.failed(new ProviderException(s"Cannot authenticate with unexpected social provider"))

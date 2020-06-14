@@ -25,10 +25,7 @@ class DiscountAdd extends Component {
 
         fetch(url, {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
+            headers: {},
             body: JSON.stringify(data),
         }).then(results => {
             return results.json();

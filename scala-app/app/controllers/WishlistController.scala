@@ -1,11 +1,13 @@
 package controllers
 
+import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
 import models.{Category, Customer, CustomerRepository, Product, ProductRepository, Wishlist, WishlistRepository}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import play.api.mvc._
+import utils.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -16,7 +18,8 @@ import scala.util.{Failure, Success}
  */
 @Singleton
 class WishlistController @Inject()
-  (wishlistRepository: WishlistRepository, productRepository: ProductRepository, customerRepository: CustomerRepository, cc: MessagesControllerComponents)
+  (wishlistRepository: WishlistRepository, productRepository: ProductRepository, customerRepository: CustomerRepository,
+   silhouette: Silhouette[DefaultEnv], cc: MessagesControllerComponents)
   (implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   val wishlistForm: Form[CreateWishlistForm] = Form {
@@ -114,17 +117,17 @@ class WishlistController @Inject()
     )
   }
 
-  def apiList = Action.async { implicit request =>
+  def apiList = silhouette.SecuredAction.async { implicit request =>
     val wishlistList = wishlistRepository.list()
     wishlistList.map(list => Ok(Json.toJson(list)))
   }
 
-  def apiListForCustomer(customerId: Long) = Action.async { implicit request =>
+  def apiListForCustomer(customerId: Long) = silhouette.SecuredAction.async { implicit request =>
     val wishlistProducts = wishlistRepository.getByCustomer(customerId)
     wishlistProducts.map(list => Ok(Json.toJson(list)))
   }
 
-  def apiGet(id: Long) = Action.async { implicit request =>
+  def apiGet(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val wishlist = wishlistRepository.getById(id)
     wishlist.map(wishlist => wishlist match {
       case Some(i) => Ok(Json.obj("wishlist" -> Json.toJson(i)))
@@ -132,14 +135,14 @@ class WishlistController @Inject()
     })
   }
 
-  def apiAdd = Action.async { implicit request =>
+  def apiAdd = silhouette.SecuredAction.async { implicit request =>
     val wishlist = request.body.asJson.get.as[Wishlist]
     wishlistRepository.create(wishlist.customer, wishlist.product).map(newEntity => {
       Ok(Json.obj("wishlist" -> Json.toJson(newEntity)))
     })
   }
 
-  def apiUpdate(id: Long) = Action.async { implicit request =>
+  def apiUpdate(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val wishlist = request.body.asJson.get.as[Wishlist]
     wishlistRepository.update(id, wishlist).map(updatedEntity => updatedEntity match{
       case Some(e) => Ok(Json.obj("wishlist" -> Json.toJson(e)))
@@ -147,7 +150,7 @@ class WishlistController @Inject()
     })
   }
 
-  def apiDelete(id: Long)= Action {
+  def apiDelete(id: Long)= silhouette.SecuredAction {
     wishlistRepository.delete(id)
     Ok(Json.obj("result" -> "ok"))
   }

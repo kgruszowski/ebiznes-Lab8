@@ -1,11 +1,13 @@
 package controllers
 
+import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
 import models.{Category, Inventory, InventoryRepository, Product, ProductRepository}
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
+import utils.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -15,7 +17,7 @@ import scala.util.{Failure, Success}
  * application's inventory page.
  */
 @Singleton
-class InventoryController @Inject()(inventoryRepo: InventoryRepository, productRepository: ProductRepository, cc: MessagesControllerComponents)
+class InventoryController @Inject()(inventoryRepo: InventoryRepository, productRepository: ProductRepository, silhouette: Silhouette[DefaultEnv], cc: MessagesControllerComponents)
                                    (implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   val inventoryForm: Form[CreateInventoryForm] = Form {
@@ -99,12 +101,12 @@ class InventoryController @Inject()(inventoryRepo: InventoryRepository, productR
     )
   }
 
-  def apiList = Action.async { implicit request =>
+  def apiList = silhouette.SecuredAction.async { implicit request =>
     val inventoryList = inventoryRepo.list()
     inventoryList.map(list => Ok(Json.toJson(list)))
   }
 
-  def apiGet(id: Long) = Action.async { implicit request =>
+  def apiGet(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val inventory = inventoryRepo.getById(id)
     inventory.map(inventory => inventory match {
       case Some(i) => Ok(Json.obj("inventory" -> Json.toJson(i)))
@@ -112,7 +114,7 @@ class InventoryController @Inject()(inventoryRepo: InventoryRepository, productR
     })
   }
 
-  def apiGetByProductId(id: Long) = Action.async { implicit request =>
+  def apiGetByProductId(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val inventory = inventoryRepo.getByProductId(id)
     inventory.map(inventory => inventory match {
       case Some(i) => Ok(Json.obj("inventory" -> Json.toJson(i)))
@@ -120,14 +122,14 @@ class InventoryController @Inject()(inventoryRepo: InventoryRepository, productR
     })
   }
 
-  def apiAdd = Action.async { implicit request =>
+  def apiAdd = silhouette.SecuredAction.async { implicit request =>
     val inventory = request.body.asJson.get.as[Inventory]
     inventoryRepo.create(inventory.quantity,  inventory.available, inventory.product).map(newEntity => {
       Ok(Json.obj("inventory" -> Json.toJson(newEntity)))
     })
   }
 
-  def apiUpdate(id: Long) = Action.async { implicit request =>
+  def apiUpdate(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val inventory = request.body.asJson.get.as[Inventory]
     inventoryRepo.update(id, inventory).map(updatedEntity => updatedEntity match{
       case Some(e) => Ok(Json.obj("inventory" -> Json.toJson(e)))
@@ -135,7 +137,7 @@ class InventoryController @Inject()(inventoryRepo: InventoryRepository, productR
     })
   }
 
-  def apiDelete(id: Long) = Action {
+  def apiDelete(id: Long) = silhouette.SecuredAction {
     inventoryRepo.delete(id)
     Ok(Json.obj("result" -> "ok"))
   }

@@ -1,5 +1,6 @@
 package controllers
 
+import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
 import models.{ShippingMethod, ShippingMethodRepository}
 import play.api.mvc._
@@ -8,6 +9,7 @@ import play.api.data.Forms._
 import play.api.mvc._
 import play.api.data.format.Formats._
 import play.api.libs.json.Json
+import utils.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -16,7 +18,7 @@ import scala.concurrent.{ExecutionContext, Future}
  * application's shipping method page.
  */
 @Singleton
-class ShippingController @Inject()(shippingMethodRepo: ShippingMethodRepository, cc: MessagesControllerComponents)
+class ShippingController @Inject()(shippingMethodRepo: ShippingMethodRepository, silhouette: Silhouette[DefaultEnv], cc: MessagesControllerComponents)
                                   (implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   val shippingForm: Form[CreateShippingForm] = Form {
@@ -91,12 +93,12 @@ class ShippingController @Inject()(shippingMethodRepo: ShippingMethodRepository,
     )
   }
 
-  def apiList = Action.async { implicit request =>
+  def apiList = silhouette.SecuredAction.async { implicit request =>
     val shippingMethodList = shippingMethodRepo.list()
     shippingMethodList.map(list => Ok(Json.toJson(list)))
   }
 
-  def apiGet(id: Long) = Action.async { implicit request =>
+  def apiGet(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val shippingMethod = shippingMethodRepo.getById(id)
     shippingMethod.map(shippingMethod => shippingMethod match {
       case Some(i) => Ok(Json.obj("shippingMethod" -> Json.toJson(i)))
@@ -104,14 +106,14 @@ class ShippingController @Inject()(shippingMethodRepo: ShippingMethodRepository,
     })
   }
 
-  def apiAdd = Action.async { implicit request =>
+  def apiAdd = silhouette.SecuredAction.async { implicit request =>
     val shippingMethod = request.body.asJson.get.as[ShippingMethod]
     shippingMethodRepo.create(shippingMethod.name, shippingMethod.deliveryTime, shippingMethod.price).map(newEntity => {
       Ok(Json.obj("shippingMethod" -> Json.toJson(newEntity)))
     })
   }
 
-  def apiUpdate(id: Long) = Action.async { implicit request =>
+  def apiUpdate(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val shippingMethod = request.body.asJson.get.as[ShippingMethod]
     shippingMethodRepo.update(id, shippingMethod).map(updatedEntity => updatedEntity match{
       case Some(e) => Ok(Json.obj("shippingMethod" -> Json.toJson(e)))
@@ -119,7 +121,7 @@ class ShippingController @Inject()(shippingMethodRepo: ShippingMethodRepository,
     })
   }
 
-  def apiDelete(id: Long)= Action {
+  def apiDelete(id: Long)= silhouette.SecuredAction {
     shippingMethodRepo.delete(id)
     Ok(Json.obj("result" -> "ok"))
   }

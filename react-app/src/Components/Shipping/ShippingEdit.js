@@ -27,10 +27,7 @@ class ShippingEdit extends Component {
 
         fetch(url, {
             method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
+            headers: {},
             body: JSON.stringify(data),
         }).then(result => {
             this.setState({shippingEdited: true})
@@ -47,11 +44,7 @@ class ShippingEdit extends Component {
         let url = "http://localhost:9000/api/shipping-method/" + this.state.id;
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {

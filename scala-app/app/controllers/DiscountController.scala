@@ -1,11 +1,13 @@
 package controllers
 
+import com.mohiva.play.silhouette.api.Silhouette
 import javax.inject._
 import models.{Discount, DiscountRepository}
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
+import utils.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -14,7 +16,7 @@ import scala.concurrent.{ExecutionContext, Future}
  * application's discount page.
  */
 @Singleton
-class DiscountController @Inject()(discountRepo: DiscountRepository, cc: MessagesControllerComponents)
+class DiscountController @Inject()(discountRepo: DiscountRepository, silhouette: Silhouette[DefaultEnv], cc: MessagesControllerComponents)
                                   (implicit ec:ExecutionContext) extends MessagesAbstractController(cc) {
 
   val discountForm: Form[CreateDiscuntForm] = Form {
@@ -86,12 +88,12 @@ class DiscountController @Inject()(discountRepo: DiscountRepository, cc: Message
     )
   }
 
-  def apiList = Action.async { implicit request =>
+  def apiList = silhouette.SecuredAction.async { implicit request =>
     val discountList = discountRepo.list()
     discountList.map(list => Ok(Json.toJson(list)))
   }
 
-  def apiGet(id: Long) = Action.async { implicit request =>
+  def apiGet(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val discount = discountRepo.getById(id)
     discount.map(discount => discount match {
       case Some(i) => Ok(Json.obj("discount" -> Json.toJson(i)))
@@ -99,14 +101,14 @@ class DiscountController @Inject()(discountRepo: DiscountRepository, cc: Message
     })
   }
 
-  def apiAdd = Action.async { implicit request =>
+  def apiAdd = silhouette.SecuredAction.async { implicit request =>
     val discount = request.body.asJson.get.as[Discount]
     discountRepo.create(discount.code, discount.value).map(newEntity => {
       Ok(Json.obj("discount" -> Json.toJson(newEntity)))
     })
   }
 
-  def apiUpdate(id: Long) = Action.async { implicit request =>
+  def apiUpdate(id: Long) = silhouette.SecuredAction.async { implicit request =>
     val discount = request.body.asJson.get.as[Discount]
     discountRepo.update(id, discount).map(updatedEntity => updatedEntity match{
       case Some(e) => Ok(Json.obj("discount" -> Json.toJson(e)))
@@ -114,7 +116,7 @@ class DiscountController @Inject()(discountRepo: DiscountRepository, cc: Message
     })
   }
 
-  def apiDelete(id: Long)= Action {
+  def apiDelete(id: Long)= silhouette.SecuredAction {
     discountRepo.delete(id)
     Ok(Json.obj("result" -> "ok"))
   }

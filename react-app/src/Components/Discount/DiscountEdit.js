@@ -25,10 +25,7 @@ class DiscountEdit extends Component {
 
         fetch(url, {
             method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
+            headers: {},
             body: JSON.stringify(data),
         }).then(result => {
             this.setState({productEdited: true})
@@ -45,11 +42,7 @@ class DiscountEdit extends Component {
         let url = "http://localhost:9000/api/discount/" + this.state.id;
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {

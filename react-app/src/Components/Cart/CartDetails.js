@@ -37,10 +37,7 @@ class CartDetails extends Component {
 
         fetch(url, {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
+            headers: {},
             body: JSON.stringify(data),
         }).then(results => {
             return results.json();
@@ -68,11 +65,7 @@ class CartDetails extends Component {
 
             fetch(url, {
                 mode: 'cors',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': 'http://localhost:3000',
-                },
+                headers: {},
                 method: 'PUT',
                 body: JSON.stringify(data),
             })
@@ -90,11 +83,7 @@ class CartDetails extends Component {
 
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {
@@ -116,11 +105,7 @@ class CartDetails extends Component {
 
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {
@@ -166,11 +151,7 @@ class CartDetails extends Component {
 
         fetch(url, {
             mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000',
-            },
+            headers: {},
             method: 'GET',
         })
             .then(results => {
@@ -183,11 +164,7 @@ class CartDetails extends Component {
 
                     fetch(productUrl, {
                         mode: 'cors',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': 'http://localhost:3000',
-                        },
+                        headers: {},
                         method: 'GET',
                     })
                         .then(results => {
