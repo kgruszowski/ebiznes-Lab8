@@ -14,6 +14,7 @@ import {CartDetails} from "./Components/Cart";
 import {OrderDetails, OrderList} from "./Components/Order";
 import {SocialSignIn, SocialSignOut} from "./Components/User";
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import Home from "./Components/Home";
 
 class App extends Component {
 
@@ -76,6 +77,8 @@ class App extends Component {
 
                     <Route path="/sign-in" component={SocialSignIn}/>
                     <Route path="/sign-out" component={SocialSignOut}/>
+
+                    <Route path="/" component={Home} />
                 </Switch>
 
             </div>
