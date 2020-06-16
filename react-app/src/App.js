@@ -15,7 +15,7 @@ class App extends Component {
             {label: "Category", link: "/categories"},
             {label: "Shipping", link: "/shippings"},
             {label: "Discount", link: "/discounts"},
-            {label: "Customer", link: "/customers"},
+            {label: "Customer", link: "/customer"},
             {label: "My wishlist", link: "/wishlists"},
             {label: "My Orders", link: "/orders"}
         ]

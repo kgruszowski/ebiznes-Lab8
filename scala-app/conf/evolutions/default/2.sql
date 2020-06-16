@@ -37,25 +37,6 @@ VALUES
     (6, 150, 150),
     (7, 999, 999);
 
-INSERT INTO "customer" (firstname, surname, address)
-VALUES
-    ("Joe", "Doe", "Seasame st. 18"),
-    ("Ann", "Black", "Long st. 233");
-
-INSERT INTO "cart" (customer, enabled)
-VALUES (1, 1);
-
-INSERT INTO "cart_products" (cart, product, quantity)
-VALUES
-    (1,1,1),
-    (1,4,1);
-
-INSERT INTO "order" (cart, shippingMethod, discount)
-VALUES (1, 2, null);
-
-INSERT INTO "wishlist" (customer, product)
-VALUES (1, 3);
-
 -- !Downs
 
 DELETE FROM "category"

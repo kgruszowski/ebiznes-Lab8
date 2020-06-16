@@ -1,17 +1,18 @@
 import React, {Component} from "react";
 import {Link, Redirect} from "react-router-dom";
+import UserUtils from "../User/UserUtils";
 
 class OrderList extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            customerId: 1,
+            customerId: null,
             orders: [],
             unauthorizedError: false
         }
     }
 
-    componentDidMount() {
+    fetchCustomerOrders() {
         let url = "http://localhost:9000/api/orders/customer/" + this.state.customerId
 
         fetch(url, {
@@ -29,6 +30,17 @@ class OrderList extends Component {
             })
             this.setState({orders: orders})
         }).catch(error => this.setState({unauthorizedError: true}))
+    }
+
+    componentDidMount() {
+        UserUtils.getUserId().then(userId => {
+            if (userId === null) {
+                this.setState({unauthorizedError: true})
+            } else {
+                this.setState({customerId: userId})
+                this.fetchCustomerOrders()
+            }
+        })
     }
 
     render() {

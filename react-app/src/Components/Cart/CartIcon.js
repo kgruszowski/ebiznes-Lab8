@@ -1,16 +1,17 @@
 import React, {Component} from "react";
 import {Link} from "react-router-dom";
+import UserUtils from "../User/UserUtils";
 
 class CartIcon extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            customerId: 1,
+            customerId: null,
             icon: ""
         }
     }
 
-    componentDidMount() {
+    fetchNumberOfProductsInCart() {
         let url = "http://localhost:9000/api/cart/customer/" + this.state.customerId;
 
         fetch(url, {
@@ -38,6 +39,17 @@ class CartIcon extends Component {
                 )
                 this.setState({icon: icon})
             })
+    }
+
+    componentDidMount() {
+        UserUtils.getUserId().then(userId => {
+            if (userId === null) {
+                this.setState({unauthorizedError: true})
+            } else {
+                this.setState({customerId: userId})
+                this.fetchNumberOfProductsInCart()
+            }
+        })
     }
 
     render() {

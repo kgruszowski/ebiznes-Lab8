@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {Link, Redirect} from "react-router-dom";
+import UserUtils from "../User/UserUtils";
 
 class WishlistList extends Component {
     constructor(props) {
@@ -11,8 +12,8 @@ class WishlistList extends Component {
         }
     }
 
-    componentDidMount() {
-        let url = "http://localhost:9000/api/wishlists/customer/" + this.state.customer;
+    fetchCustomerWishlists(id) {
+        let url = "http://localhost:9000/api/wishlists/customer/" + id;
 
         fetch(url, {
             mode: 'cors',
@@ -32,6 +33,17 @@ class WishlistList extends Component {
             })
             this.setState({wishlistedProducts: wishlistedProducts})
         }).catch(error => this.setState({unauthorizedError: true}))
+    }
+
+    componentDidMount() {
+        UserUtils.getUserId().then(userId => {
+            if (userId === null) {
+                this.setState({unauthorizedError: true})
+            } else {
+                this.setState({customerId: userId})
+                this.fetchCustomerWishlists(userId)
+            }
+        })
     }
 
     render() {

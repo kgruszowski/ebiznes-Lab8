@@ -1,16 +1,19 @@
 import React, {Component} from "react";
-import {Link} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
+import UserUtils from "../User/UserUtils"
 
 class CustomerDetails extends Component {
     constructor(props) {
         super(props);
+
         this.state = {
             customer: [],
             customerId: props.match.params.id,
+            unauthorizedError: false
         }
     }
 
-    componentDidMount() {
+    fetchCustomerData() {
         let url = "http://localhost:9000/api/customer/" + this.state.customerId;
 
         fetch(url, {
@@ -40,7 +43,26 @@ class CustomerDetails extends Component {
         })
     }
 
+    componentDidMount() {
+        if (typeof this.state.customerId === "undefined") {
+            UserUtils.getUserId().then(userId => {
+                if (userId === null) {
+                    this.setState({unauthorizedError: true})
+                } else {
+                    this.setState({customerId: userId})
+                    this.fetchCustomerData()
+                }
+            })
+        } else {
+            this.fetchCustomerData(this.state.customerId)
+        }
+    }
+
     render() {
+        if (this.state.unauthorizedError) {
+            return <Redirect to={"/sign-in"}/>
+        }
+
         return (
             <div className="item-container">
                 <div className="container">

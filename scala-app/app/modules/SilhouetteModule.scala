@@ -110,7 +110,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
                                   clock: Clock): AuthenticatorService[JWTAuthenticator] = {
     val settings = JWTAuthenticatorSettings(
       sharedSecret = configuration.get[String]("silhouette.authenticator.jwt.key"),
-      authenticatorExpiry = FiniteDuration(60, TimeUnit.SECONDS)
+      authenticatorExpiry = FiniteDuration(600, TimeUnit.SECONDS)
     )
     val encoder = new CrypterAuthenticatorEncoder(crypter)
 

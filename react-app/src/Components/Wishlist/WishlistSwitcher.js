@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import UserUtils from "../User/UserUtils";
 
 class WishlistSwitcher extends Component {
     constructor(props) {
@@ -6,7 +7,7 @@ class WishlistSwitcher extends Component {
         this.state = {
             id: 0,
             productId: props.productId,
-            customerId: 1,
+            customerId: null,
             wishlistBtn: "",
             productOnWishlist: false
         }
@@ -67,16 +68,8 @@ class WishlistSwitcher extends Component {
         }
     }
 
-    getBtnText() {
-        if (this.state.productOnWishlist) {
-            return "Remove from wishlist"
-        } else {
-            return "Add to wishlist"
-        }
-    }
-
-    componentDidMount() {
-        let url = "http://localhost:9000/api/wishlists/customer/" + this.state.customerId;
+    fetchCustomersWishlist(id) {
+        let url = "http://localhost:9000/api/wishlists/customer/" + id
         fetch(url, {
             mode: 'cors',
             headers: {},
@@ -96,6 +89,17 @@ class WishlistSwitcher extends Component {
                 }
             })
         });
+    }
+
+    componentDidMount() {
+        UserUtils.getUserId().then(userId => {
+            if (userId === null) {
+                this.setState({unauthorizedError: true})
+            } else {
+                this.setState({customerId: userId})
+                this.fetchCustomersWishlist(userId)
+            }
+        })
     }
 
     render() {

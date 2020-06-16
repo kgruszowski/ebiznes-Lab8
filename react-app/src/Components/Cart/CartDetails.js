@@ -1,11 +1,12 @@
 import React, {Component} from "react";
 import {Link, Redirect} from "react-router-dom";
+import UserUtils from "../User/UserUtils";
 
 class CartDetails extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            customerId: 1,
+            customerId: null,
             cartId: null,
             products: [],
             productIds: [],
@@ -15,7 +16,8 @@ class CartDetails extends Component {
             shipping: [],
             shippingId: null,
             shippingPrice: 0,
-            orderId: null
+            orderId: null,
+            unauthorizedError: false
         }
 
         this.removeFromCart = this.removeFromCart.bind(this);
@@ -155,9 +157,17 @@ class CartDetails extends Component {
             method: 'GET',
         })
             .then(results => {
-                return results.json();
+                if (results.status !== 404) {
+                    return results.json();
+                }
+
+                return null
             })
             .then(data => {
+                if (data == null) {
+                    return
+                }
+
                 this.setState({cartId: data.cart.id})
                 data.products.map((id) => {
                     let productUrl = "http://localhost:9000/api/product/" + id;
@@ -177,13 +187,20 @@ class CartDetails extends Component {
                         })
                     });
                 })
-            })
+            }).catch(error => this.setState({unauthorizedError: true}))
     }
 
     componentDidMount() {
-        this.fetchCartContent()
-        this.fetchDiscounts()
-        this.fetchShippingMethods()
+        UserUtils.getUserId().then(userId => {
+            if (userId === null) {
+                this.setState({unauthorizedError: true})
+            } else {
+                this.setState({customerId: userId})
+                this.fetchCartContent()
+                this.fetchDiscounts()
+                this.fetchShippingMethods()
+            }
+        })
     }
 
     calculateCartValue() {
@@ -197,6 +214,10 @@ class CartDetails extends Component {
     }
 
     render() {
+        if (this.state.unauthorizedError) {
+            return <Redirect to={"/sign-in"}/>
+        }
+
         if (this.state.orderId !== null) {
             return <Redirect to={"/order/" + this.state.orderId}/>
         }

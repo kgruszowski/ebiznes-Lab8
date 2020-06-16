@@ -8,6 +8,7 @@ GET           /                                          controllers.HomeControl
 
 # Auth
 GET           /authenticate/:provider                    controllers.SocialAuthController.authenticate(provider)
+GET           /api/get-user                              controllers.SocialAuthController.getUser
 
 # Customer module
 GET           /customers                                 controllers.CustomerController.list

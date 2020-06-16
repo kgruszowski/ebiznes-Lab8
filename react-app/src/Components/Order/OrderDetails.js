@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {Redirect} from "react-router-dom";
 
 class OrderDetails extends Component {
     constructor(props) {
@@ -28,7 +29,7 @@ class OrderDetails extends Component {
                     discount: data.order[2],
                 })
             this.fetchProductsList(data.order[0].cart)
-        })
+        }).catch(error => this.setState({unauthorizedError: true}))
     }
 
     fetchProductsList(cartId) {
@@ -79,6 +80,10 @@ class OrderDetails extends Component {
     }
 
     render() {
+        if (this.state.unauthorizedError) {
+            return <Redirect to={"/sign-in"}/>
+        }
+
         return (
             <div>
                 <h5>Order details</h5>

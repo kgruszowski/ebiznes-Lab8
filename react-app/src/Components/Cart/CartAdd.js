@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import UserUtils from "../User/UserUtils";
 
 class CartAdd extends Component {
     constructor(props) {
@@ -7,7 +8,7 @@ class CartAdd extends Component {
             productId: props.productId,
             productIds: [],
             cartId: null,
-            customerId: 1
+            customerId: null
         }
 
         this.addToCart = this.addToCart.bind(this);
@@ -70,7 +71,7 @@ class CartAdd extends Component {
         })
     }
 
-    componentDidMount() {
+    fetchCustomerCartContent() {
         let url = "http://localhost:9000/api/cart/customer/" + this.state.customerId;
 
         fetch(url, {
@@ -87,6 +88,17 @@ class CartAdd extends Component {
                     cartId: data.cart.id
                 })
             })
+    }
+
+    componentDidMount() {
+        UserUtils.getUserId().then(userId => {
+            if (userId === null) {
+                this.setState({unauthorizedError: true})
+            } else {
+                this.setState({customerId: userId})
+                this.fetchCustomerCartContent()
+            }
+        })
     }
 
     render() {

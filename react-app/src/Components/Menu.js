@@ -15,7 +15,7 @@ import {ReviewAdd, ReviewEdit} from "./Review";
 import {WishlistSwitcher, WishlistList} from "./Wishlist";
 import {CartDetails, CartIcon} from "./Cart";
 import {OrderDetails, OrderList} from "./Order";
-import {SocialSignIn} from "./SignIn";
+import {SocialSignIn, SocialSignOut} from "./User";
 
 class Menu extends Component {
     linksMarkup = this.props.links.map((link, index) =>
@@ -40,8 +40,11 @@ class Menu extends Component {
                             {this.linksMarkup}
                         </ul>
                         <ul className="navbar-nav ml-auto">
-                            <li className="nav-item pill-right" key='cart'>
+                            <li className="nav-item" key='cart'>
                                 <CartIcon />
+                            </li>
+                            <li className="nav-item" key="Sign Out">
+                                <Link className="nav-link" to="/sign-out">Sign Out</Link>
                             </li>
                         </ul>
                     </div>
@@ -75,7 +78,7 @@ class Menu extends Component {
                 <Route path="/customers" component={CustomerList}/>
                 <Route path="/customer/add" component={CustomerAdd}/>
                 <Route path="/customer/edit/:id" component={CustomerEdit}/>
-                <Route path="/customer/:id" component={CustomerDetails}/>
+                <Route path="/customer/:id?" component={CustomerDetails}/>
 
                 <Route path="/review/add/product/:productId" component={ReviewAdd}/>
                 <Route path="/review/edit/:id" component={ReviewEdit}/>
@@ -89,6 +92,7 @@ class Menu extends Component {
                 <Route path="/order/:id" component={OrderDetails} />
 
                 <Route path="/sign-in" component={SocialSignIn} />
+                <Route path="/sign-out" component={SocialSignOut} />
             </Switch>
         </Router>
     }

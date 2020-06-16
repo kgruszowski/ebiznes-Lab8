@@ -44,7 +44,7 @@ class SocialAuthController @Inject() (
    * @param provider The ID of the provider to authenticate against.
    * @return The result to display.
    */
-  def authenticate(provider: String) = Action.async { implicit request: Request[AnyContent] =>
+  def authenticate(provider: String) = silhouette.UnsecuredAction.async { implicit request: Request[AnyContent] =>
     (socialProviderRegistry.get[SocialProvider](provider) match {
       case Some(p: SocialProvider with CommonSocialProfileBuilder) =>
         p.authenticate().flatMap {
@@ -66,6 +66,13 @@ class SocialAuthController @Inject() (
       case e: ProviderException =>
         logger.error("Unexpected provider error", e)
         BadRequest("UNEXPECTED_PROVIDER")
+    }
+  }
+
+  def getUser() = silhouette.UserAwareAction { implicit request =>
+    request.identity match {
+      case Some(identity) => Ok(Json.obj("userId" -> Json.toJson(identity.id), "userName" -> Json.toJson(identity.name)))
+      case None => NotFound
     }
   }
 }

@@ -42,11 +42,10 @@ class WishlistRepository @Inject()
 
   def getByCustomer(id: Long): Future[Seq[(Wishlist, Product)]] = db.run {
     val joinQuery = for {
-      (wishlist, product) <- wishlistTable join productTable on (_.product === _.id)
+      (wishlist, product) <- wishlistTable.filter(_.customer === id) join productTable on (_.product === _.id)
     } yield (wishlist, product)
 
     joinQuery.result
-//    wishlistTable.join(productTable).on(_.product === _.id).filter(_.1.customer === id).result
   }
 
   def getById(id: Long): Future[Option[Wishlist]] = db.run {
