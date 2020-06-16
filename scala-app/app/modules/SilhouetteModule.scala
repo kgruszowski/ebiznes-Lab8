@@ -23,8 +23,7 @@ import models.daos.SocialAuthInfoDAOImpl
 import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
 import play.api.libs.ws.WSClient
-import play.api.mvc.CookieHeaderEncoding
-import utils.{CustomSecuredErrorHandler, CustomUnsecuredErrorHandler, DefaultEnv}
+import utils.DefaultEnv
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.FiniteDuration
@@ -36,13 +35,10 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 
   override def configure(): Unit = {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
-//    bind[UnsecuredErrorHandler].to[CustomUnsecuredErrorHandler]
-//    bind[SecuredErrorHandler].to[CustomSecuredErrorHandler]
     bind[IDGenerator].toInstance(new SecureRandomIDGenerator())
     bind[EventBus].toInstance(EventBus())
     bind[Clock].toInstance(Clock())
     bind[DelegableAuthInfoDAO[OAuth2Info]].to[SocialAuthInfoDAOImpl]
-//    bind[FingerprintGenerator].toInstance(new DefaultFingerprintGenerator(false))
   }
 
   /**

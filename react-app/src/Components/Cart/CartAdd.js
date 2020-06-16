@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import UserUtils from "../User/UserUtils";
+import CartIcon from "./CartIcon";
 
 class CartAdd extends Component {
     constructor(props) {
